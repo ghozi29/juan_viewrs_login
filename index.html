@@ -1,48 +1,49 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Laundry Viewer</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Data Pelanggan Laundry</title>
+  <style>
+    /* ... (gunakan CSS yang sama dari sebelumnya) ... */
+  </style>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-  <style>
-    body { font-family: Arial; background: #f0f0f0; padding: 20px; }
-    .container { max-width: 500px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px #ccc; }
-    h2 { text-align: center; }
-    input, button { width: 100%; margin: 10px 0; padding: 10px; }
-    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-    th, td { border: 1px solid #ccc; padding: 8px; text-align: center; }
-    .hidden { display: none; }
-  </style>
 </head>
 <body>
 
-<div class="container" id="auth-container">
-  <h2>Login / Daftar</h2>
-  <input type="text" id="username" placeholder="Username">
-  <input type="password" id="password" placeholder="Password">
-  <button id="login-btn">Login</button>
-  <button id="register-btn">Daftar</button>
-  <p id="auth-error" style="color:red;"></p>
+<!-- Login -->
+<div class="container" id="login-container">
+  <h1>Login Pelanggan</h1>
+  <form id="login-form">
+    <input type="text" id="login-nama" placeholder="Masukkan Nama Anda" required />
+    <input type="text" id="login-kode" placeholder="Masukkan Kode Transaksi" required />
+    <button type="submit">Lihat Data Saya</button>
+  </form>
 </div>
 
-<div class="container hidden" id="main-container">
-  <h2>Data Laundry Anda</h2>
-  <button id="logout-btn">Logout</button>
-  <form id="laundry-form">
-    <input type="text" id="nama" placeholder="Nama">
-    <input type="text" id="berat" placeholder="Berat (kg)">
-    <input type="text" id="layanan" placeholder="Layanan">
-    <button type="submit">Simpan Data</button>
-  </form>
-
-  <table>
+<!-- Data -->
+<div class="container" id="data-container" style="display:none;">
+  <h1>Data Laundry Anda</h1>
+  <div class="error-message" id="error-message" style="display:none;">
+    Gagal memuat data. Silakan cek kembali informasi login Anda.
+  </div>
+  <table id="laundryTable">
     <thead>
-      <tr><th>Nama</th><th>Berat</th><th>Layanan</th></tr>
+      <tr>
+        <th>Nama</th>
+        <th>Harga</th>
+        <th>Jumlah</th>
+        <th>Berat</th>
+        <th>Layanan</th>
+        <th>Tanggal Masuk</th>
+        <th>Tanggal Selesai</th>
+        <th>Kode</th>
+        <th>Status</th>
+      </tr>
     </thead>
-    <tbody id="data-table"></tbody>
+    <tbody></tbody>
   </table>
 </div>
 
@@ -56,94 +57,51 @@
     messagingSenderId: "631897766480",
     appId: "1:631897766480:web:b12b5adc1f1d48d20f2f55"
   };
+
   firebase.initializeApp(firebaseConfig);
-
   const db = firebase.database();
-  const akunRef = db.ref("akun_viewer");
-  const dataRef = db.ref("data_viewer");
 
-  let currentUser = "";
-
-  // Login
-  $('#login-btn').click(() => {
-    const user = $('#username').val().trim();
-    const pass = $('#password').val().trim();
-
-    akunRef.child(user).once('value', snap => {
-      if (snap.exists() && snap.val().password === pass) {
-        currentUser = user;
-        $('#auth-container').hide();
-        $('#main-container').show();
-        loadData();
-      } else {
-        $('#auth-error').text("❌ Username atau Password salah!");
-      }
-    });
-  });
-
-  // Register
-  $('#register-btn').click(() => {
-    const user = $('#username').val().trim();
-    const pass = $('#password').val().trim();
-
-    if (!user || !pass) {
-      $('#auth-error').text("❗ Username & Password harus diisi.");
-      return;
-    }
-
-    akunRef.child(user).once('value', snap => {
-      if (snap.exists()) {
-        $('#auth-error').text("⚠️ Username sudah terdaftar.");
-      } else {
-        akunRef.child(user).set({ password: pass }).then(() => {
-          alert("✅ Akun berhasil didaftarkan. Silakan login.");
-        });
-      }
-    });
-  });
-
-  // Logout
-  $('#logout-btn').click(() => {
-    currentUser = "";
-    $('#main-container').hide();
-    $('#auth-container').show();
-    $('#username, #password').val('');
-  });
-
-  // Simpan data laundry
-  $('#laundry-form').submit(e => {
-    e.preventDefault();
-    const nama = $('#nama').val();
-    const berat = $('#berat').val();
-    const layanan = $('#layanan').val();
-
-    if (!nama || !berat || !layanan) {
-      alert("❗ Lengkapi semua data.");
-      return;
-    }
-
-    const newKey = dataRef.child(currentUser).push().key;
-    dataRef.child(currentUser).child(newKey).set({ nama, berat, layanan }).then(() => {
-      $('#nama, #berat, #layanan').val('');
-      loadData();
-    });
-  });
-
-  // Tampilkan data laundry milik user
-  function loadData() {
-    db.ref(`data_viewer/${currentUser}`).once('value', snap => {
-      const tbody = $('#data-table');
-      tbody.empty();
-      if (snap.exists()) {
-        snap.forEach(child => {
-          const d = child.val();
-          tbody.append(`<tr><td>${d.nama}</td><td>${d.berat}</td><td>${d.layanan}</td></tr>`);
-        });
-      } else {
-        tbody.append('<tr><td colspan="3">Belum ada data</td></tr>');
-      }
-    });
+  function formatRupiah(angka) {
+    return 'Rp ' + parseInt(angka || 0).toLocaleString('id-ID');
   }
+
+  $('#login-form').on('submit', function(e) {
+    e.preventDefault();
+    const nama = $('#login-nama').val().trim().toLowerCase();
+    const kode = $('#login-kode').val().trim();
+
+    db.ref('databasee/' + kode).once('value')
+      .then(snapshot => {
+        const data = snapshot.val();
+        if (!data || (data.nama || '').toLowerCase() !== nama) {
+          $('#error-message').show();
+          return;
+        }
+
+        $('#error-message').hide();
+        $('#login-container').hide();
+        $('#data-container').show();
+
+        const row = `
+          <tr>
+            <td>${data.nama || '-'}</td>
+            <td>${formatRupiah(data.harga)}</td>
+            <td>${data.jumlah || '0'}</td>
+            <td>${data.berat || '0'}</td>
+            <td>${data.layanan || '-'}</td>
+            <td>${data.tanggal || '-'}</td>
+            <td>${data.tanggalPengambilan || '-'}</td>
+            <td>${data.code || '-'}</td>
+            <td>${data.status || 'On Proses'}</td>
+          </tr>
+        `;
+        $('#laundryTable tbody').html(row);
+      })
+      .catch(err => {
+        console.error("Gagal mengambil data:", err);
+        $('#error-message').show();
+      });
+  });
 </script>
 
 </body>
