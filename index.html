@@ -241,7 +241,7 @@
     let filteredData = [];
 
     if (code) {
-      // Jika kode transaksi dimasukkan, cari data berdasarkan kode
+      // Pencarian berdasarkan Kode Transaksi
       database.ref('databasee').child(code).once('value', (snapshot) => {
         const data = snapshot.val();
         if (data) {
@@ -249,9 +249,11 @@
         } else {
           showNoResultsMessage();
         }
+        allData = filteredData;
+        renderTablePage(currentPage);
       });
     } else if (name) {
-      // Jika nama dimasukkan, cari data yang sesuai
+      // Pencarian berdasarkan Nama
       database.ref('databasee').once('value', (snapshot) => {
         snapshot.forEach((childSnapshot) => {
           const data = childSnapshot.val();
@@ -259,25 +261,25 @@
             filteredData.push(data);
           }
         });
-
         if (filteredData.length === 0) {
           showNoResultsMessage();
         } else {
           hideNoResultsMessage();
         }
+        allData = filteredData;
+        renderTablePage(currentPage);
       });
     } else {
-      // Jika tidak ada input pencarian
+      // Jika tidak ada pencarian, tampilkan semua data
       database.ref('databasee').once('value', (snapshot) => {
         snapshot.forEach((childSnapshot) => {
           filteredData.push(childSnapshot.val());
         });
         hideNoResultsMessage();
+        allData = filteredData;
+        renderTablePage(currentPage);
       });
     }
-
-    allData = filteredData;
-    renderTablePage(currentPage);
   }
 
   function showNoResultsMessage() {
@@ -291,14 +293,13 @@
   }
 
   $(document).ready(function() {
-    // Pencarian ketika tombol 'Cari' di klik
+    // Ketika tombol cari diklik
     $('#search-btn').click(function() {
       const name = $('#search-name').val();
       const code = $('#search-code').val();
       searchData(name, code);
     });
   });
-
 </script>
 </body>
 </html>
