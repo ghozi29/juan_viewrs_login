@@ -3,134 +3,90 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Login Staff Laundry</title>
+  <title>DATA PELANGGAN LAUNDRY</title>
   <style>
+    /* Styling untuk halaman */
     body {
       font-family: Arial, sans-serif;
-      background-color: #f4f4f4;
       margin: 0;
       padding: 0;
-    }
-
-    .login-container {
-      width: 90%;
-      max-width: 400px;
-      margin: 80px auto;
-      background-color: white;
-      padding: 20px;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-      border-radius: 8px;
-      display: none;
+      background-color: #f4f4f4;
     }
 
     .container {
-      width: 95%;
-      max-width: 1200px;
-      margin: 30px auto;
+      width: 90%;
+      margin: 50px auto;
       background-color: white;
       padding: 20px;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
       border-radius: 8px;
-      display: none;
-      overflow-x: auto;
     }
 
-    h1, h2 {
+    h1 {
       text-align: center;
       color: #333;
     }
 
-    input[type="text"], input[type="password"] {
-      width: 100%;
-      padding: 8px;
-      margin: 8px 0;
-      border: 1px solid #ccc;
-      border-radius: 5px;
+    .search-form {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 20px;
     }
 
-    button {
-      width: 100%;
-      padding: 8px;
+    .search-form input {
+      padding: 10px;
+      margin: 0 10px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      width: 200px;
+    }
+
+    .search-form button {
+      padding: 10px 20px;
+      border: 1px solid #3efa41;
+      border-radius: 5px;
       background-color: #3efa41;
       color: white;
-      border: none;
-      border-radius: 5px;
       cursor: pointer;
       font-weight: bold;
-    }
-
-    button:hover {
-      background-color: #34c938;
-    }
-
-    .top-bar {
-      display: flex;
-      justify-content: flex-end;
-    }
-
-    .logout-button {
-      background-color: red;
-      color: white;
-      padding: 6px 12px;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      font-size: 14px;
-    }
-
-    .logout-button:hover {
-      background-color: darkred;
     }
 
     table {
       width: 100%;
       border-collapse: collapse;
-      margin-top: 15px;
-      min-width: 800px;
+      margin-top: 20px;
     }
 
     th, td {
-      padding: 10px;
-      border: 1px solid #ccc;
+      padding: 12px;
       text-align: center;
+      border: 1px solid #000000;
     }
 
     th {
       background-color: #3efa41;
-      color: #000;
     }
 
-    .delete-button {
-      background-color: red;
-      color: white;
-      border: none;
-      padding: 4px 8px;
-      cursor: pointer;
-      border-radius: 5px;
-      font-size: 13px;
-    }
-
-    .status-dropdown {
-      padding: 4px;
-      border-radius: 5px;
-      font-size: 13px;
+    .error-message {
+      color: red;
+      font-weight: bold;
+      text-align: center;
     }
 
     #pagination-controls {
-      text-align: center;
       margin-top: 15px;
+      text-align: center;
     }
 
     #pagination-controls button {
-      padding: 4px 8px;
-      margin: 2px;
+      margin: 0 3px;
+      padding: 5px 10px;
+      cursor: pointer;
       border-radius: 5px;
       border: 1px solid #3efa41;
       background-color: white;
       color: #3efa41;
       font-weight: bold;
-      cursor: pointer;
-      font-size: 13px;
     }
 
     #pagination-controls button.active {
@@ -138,62 +94,73 @@
       color: white;
     }
 
-    @media (max-width: 768px) {
-      table, thead, tbody, th, td, tr {
-        font-size: 12px;
-      }
+    .footer-note {
+      margin-top: 30px;
+      text-align: center;
+      font-size: 14px;
+      color: #a00;
+      font-style: italic;
+      border-top: 1px solid #ddd;
+      padding-top: 15px;
+    }
+
+    .no-results {
+      color: #a00;
+      font-weight: bold;
+      text-align: center;
+      margin-top: 20px;
     }
   </style>
+
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
-  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 <body>
 
-<!-- Login Form -->
-<div class="login-container" id="login-container">
-  <h2>Login Staff Laundry</h2>
-  <input type="text" id="username" placeholder="ID Staff">
-  <input type="password" id="password" placeholder="Password">
-  <button id="login-button">Login</button>
-  <button id="to-change-password" style="margin-top: 10px;">Ganti Password</button>
-</div>
+<div class="container">
+  <h1>Data Pelanggan Laundry</h1>
 
-<!-- Change Password Form -->
-<div class="login-container" id="change-password-container">
-  <h2>Ganti Password</h2>
-  <input type="text" id="cp-username" placeholder="ID Staff">
-  <input type="text" id="cp-token" placeholder="Kode Otentikasi">
-  <input type="password" id="cp-new-password" placeholder="Password Baru">
-  <button id="cp-submit">Ganti Password</button>
-  <button id="cp-back" style="margin-top: 10px;">Kembali ke Login</button>
-</div>
-
-<!-- Main Container -->
-<div class="container" id="main-container">
-  <div class="top-bar">
-    <button class="logout-button" id="logout-button">Logout</button>
+  <!-- Form Pencarian -->
+  <div class="search-form">
+    <input type="text" id="search-name" placeholder="Masukkan Nama" />
+    <input type="text" id="search-code" placeholder="Masukkan Kode Transaksi" />
+    <button id="search-btn">Cari</button>
   </div>
-  <h1>Website Staff Data Pelanggan Laundry</h1>
+
+  <div class="error-message" id="error-message" style="display:none;">
+    Gagal memuat data. Silakan cek konsol.
+  </div>
+
   <table id="laundryTable">
     <thead>
       <tr>
         <th>No</th>
         <th>Nama</th>
-        <th>Harga</th>
-        <th>Jumlah</th>
-        <th>Berat</th>
+        <th>Harga (Rp)</th>
+        <th>Jumlah (PCS)</th>
+        <th>Berat (KG)</th>
         <th>Layanan</th>
         <th>Tanggal Masuk</th>
         <th>Tanggal Selesai</th>
-        <th>Kode</th>
+        <th>Kode Transaksi</th>
         <th>Status</th>
-        <th>Aksi</th>
       </tr>
     </thead>
-    <tbody></tbody>
+    <tbody>
+      <!-- Data dinamis -->
+    </tbody>
   </table>
+
   <div id="pagination-controls"></div>
+
+  <div class="no-results" id="no-results-message" style="display:none;">
+    <p>Data tidak ditemukan untuk pencarian yang Anda masukkan.</p>
+  </div>
+
+  <div class="footer-note">
+    <p>Jika dalam 30 hari tidak diambil, maka segala bentuk kehilangan bukan tanggung jawab kami!</p>
+  </div>
 </div>
 
 <script>
@@ -204,194 +171,134 @@
     projectId: "tongsampah1-a",
     storageBucket: "tongsampah1-a.appspot.com",
     messagingSenderId: "631897766480",
-    appId: "1:631897766480:web:b12b5adc1f1d48d20f2f55"
+    appId: "1:631897766480:web:b12b5adc1f1d48d20f2f55",
+    measurementId: "G-4S53LK3D6X"
   };
 
   firebase.initializeApp(firebaseConfig);
-  const db = firebase.database();
-  const akunRef = db.ref("akun_staff");
-  const dataRef = db.ref("databasee");
-  const tokenRef = db.ref("juan_staff/otentikasi");
+  const database = firebase.database();
 
   let allData = [];
-  let currentPage = 1;
   const pageSize = 10;
+  let currentPage = 1;
 
   function formatRupiah(angka) {
-    if (!angka) return '0';
-    return parseInt(angka).toLocaleString('id-ID');
+    const number = parseInt(angka);
+    if (isNaN(number)) return "Rp0,00";
+    return 'Rp ' + number.toLocaleString('id-ID', { minimumFractionDigits: 2 });
   }
 
-  function renderTable(page = 1, data = allData) {
-    const tbody = $('#laundryTable tbody');
-    tbody.empty();
+  function renderTablePage(page = 1) {
+    const tableBody = $('#laundryTable tbody');
+    tableBody.empty();
 
     const start = (page - 1) * pageSize;
-    const end = Math.min(start + pageSize, data.length);
-    const pageData = data.slice(start, end);
+    const end = start + pageSize;
+    const pageData = allData.slice(start, end);
 
     if (pageData.length === 0) {
-      tbody.append('<tr><td colspan="11">Data tidak ditemukan</td></tr>');
+      tableBody.append('<tr><td colspan="10">Tidak ada data</td></tr>');
       return;
     }
 
-    pageData.forEach((item, i) => {
-      tbody.append(
+    pageData.forEach((item, index) => {
+      const nomorUrut = start + index + 1;
+      const row = `
         <tr>
-          <td>${start + i + 1}</td>
+          <td>${nomorUrut}</td>
           <td>${item.nama || '-'}</td>
-          <td>Rp ${formatRupiah(item.harga)}</td>
+          <td>${formatRupiah(item.harga)}</td>
           <td>${item.jumlah || '0'}</td>
           <td>${item.berat || '0'}</td>
           <td>${item.layanan || '-'}</td>
           <td>${item.tanggal || '-'}</td>
           <td>${item.tanggalPengambilan || '-'}</td>
           <td>${item.code || '-'}</td>
-          <td>
-            <select class="status-dropdown" data-id="${item.key}">
-              <option value="On Proses" ${item.status === 'On Proses' ? 'selected' : ''}>On Proses</option>
-              <option value="Siap Diambil" ${item.status === 'Siap Diambil' ? 'selected' : ''}>Siap Diambil</option>
-              <option value="Sudah Diambil" ${item.status === 'Sudah Diambil' ? 'selected' : ''}>Sudah Diambil</option>
-            </select>
-          </td>
-          <td><button class="delete-button" data-id="${item.key}">Hapus</button></td>
+          <td>${item.status || 'On Proses'}</td>
         </tr>
-      );
+      `;
+      tableBody.append(row);
     });
 
-    renderPagination(data);
+    renderPagination();
   }
 
-  function renderPagination(data = allData) {
-    const totalPages = Math.ceil(data.length / pageSize);
-    let buttons = "";
+  function renderPagination() {
+    const totalPages = Math.ceil(allData.length / pageSize);
+    let html = '';
 
     for (let i = 1; i <= totalPages; i++) {
-      const isActive = i === currentPage ? "active" : "";
-      buttons += <button class="${isActive}" data-page="${i}">${i}</button>;
+      const startNum = (i - 1) * pageSize + 1;
+      const endNum = Math.min(i * pageSize, allData.length);
+      const active = (i === currentPage) ? 'active' : '';
+      html += `<button class="pagination-btn ${active}" data-page="${i}">${startNum}-${endNum}</button>`;
     }
 
-    $('#pagination-controls').html(buttons);
+    $('#pagination-controls').html(html);
   }
 
-  function loadData() {
-    dataRef.orderByChild("createdAt").once('value', snapshot => {
-      allData = [];
-      snapshot.forEach(child => {
-        const val = child.val();
-        val.key = child.key;
-        allData.unshift(val);
-      });
-      renderTable(currentPage = 1);
-    });
-  }
+  function searchData(name, code) {
+    let filteredData = [];
 
-  $(document).ready(() => {
-    $('#login-container').show();
-
-    $('#login-button').click(function () {
-      const username = $('#username').val().trim();
-      const password = $('#password').val().trim();
-
-      if (!username || !password) {
-        alert("Harap isi semua kolom!");
-        return;
-      }
-
-      akunRef.child(username).once('value', snapshot => {
+    if (code) {
+      // Jika kode transaksi dimasukkan, cari data berdasarkan kode
+      database.ref('databasee').child(code).once('value', (snapshot) => {
         const data = snapshot.val();
-        if (data && data.password === password) {
-          alert("✅ Login berhasil!");
-          $('#login-container').hide();
-          $('#main-container').show();
-          loadData();
+        if (data) {
+          filteredData.push(data);
         } else {
-          alert("❌ ID atau Password salah!");
+          showNoResultsMessage();
         }
       });
-    });
+    } else if (name) {
+      // Jika nama dimasukkan, cari data yang sesuai
+      database.ref('databasee').once('value', (snapshot) => {
+        snapshot.forEach((childSnapshot) => {
+          const data = childSnapshot.val();
+          if (data.nama && data.nama.toLowerCase().includes(name.toLowerCase())) {
+            filteredData.push(data);
+          }
+        });
 
-    $('#logout-button').click(function () {
-      if (confirm("Yakin ingin logout?")) {
-        $('#main-container').hide();
-        $('#login-container').show();
-        $('#username, #password').val('');
-      }
-    });
-
-    $('#pagination-controls').on('click', 'button', function () {
-      currentPage = parseInt($(this).data('page'));
-      renderTable(currentPage);
-    });
-
-    $(document).on('change', '.status-dropdown', function () {
-      const key = $(this).data('id');
-      const newStatus = $(this).val();
-      dataRef.child(key).child('status').set(newStatus)
-        .then(() => console.log("✅ Status diperbarui"))
-        .catch(err => alert("❌ Gagal update status: " + err));
-    });
-
-    $(document).on('click', '.delete-button', function () {
-      const key = $(this).data('id');
-      if (!confirm("Yakin hapus data ini?")) return;
-      dataRef.child(key).remove()
-        .then(() => {
-          alert("✅ Data berhasil dihapus");
-          loadData();
-        })
-        .catch(err => alert("❌ Gagal hapus: " + err));
-    });
-
-    $('#to-change-password').click(() => {
-      $('#login-container').hide();
-      $('#change-password-container').show();
-    });
-
-    $('#cp-back').click(() => {
-      $('#change-password-container').hide();
-      $('#login-container').show();
-    });
-
-    $('#cp-submit').click(() => {
-      const username = $('#cp-username').val().trim();
-      const token = $('#cp-token').val().trim();
-      const newPassword = $('#cp-new-password').val().trim();
-
-      if (!username || !token || !newPassword) {
-        alert("Harap isi semua kolom!");
-        return;
-      }
-
-      akunRef.child(username).once('value', snapshot => {
-        const data = snapshot.val();
-        if (!data) {
-          alert("❌ ID Staff tidak ditemukan.");
-          return;
+        if (filteredData.length === 0) {
+          showNoResultsMessage();
+        } else {
+          hideNoResultsMessage();
         }
+      });
+    } else {
+      // Jika tidak ada input pencarian
+      database.ref('databasee').once('value', (snapshot) => {
+        snapshot.forEach((childSnapshot) => {
+          filteredData.push(childSnapshot.val());
+        });
+        hideNoResultsMessage();
+      });
+    }
 
-        tokenRef.once('value', snap => {
-  const kodeAsli = snap.val(); // "admin"
-  console.log("Token input:", token);
-  console.log("Token Firebase:", kodeAsli);
-
-  if (token.trim() === kodeAsli.trim()) {
-    akunRef.child(username).child("password").set(newPassword)
-      .then(() => {
-        alert("✅ Password berhasil diganti!");
-        $('#change-password-container').hide();
-        $('#login-container').show();
-        $('#cp-username, #cp-token, #cp-new-password').val('');
-      })
-      .catch(err => alert("❌ Gagal mengganti password: " + err));
-  } else {
-    alert("❌ Kode otentikasi salah!");
+    allData = filteredData;
+    renderTablePage(currentPage);
   }
-});
-      });
+
+  function showNoResultsMessage() {
+    $('#no-results-message').show();
+    $('#laundryTable').hide();
+  }
+
+  function hideNoResultsMessage() {
+    $('#no-results-message').hide();
+    $('#laundryTable').show();
+  }
+
+  $(document).ready(function() {
+    // Pencarian ketika tombol 'Cari' di klik
+    $('#search-btn').click(function() {
+      const name = $('#search-name').val();
+      const code = $('#search-code').val();
+      searchData(name, code);
     });
   });
-</script>
 
+</script>
 </body>
 </html>
