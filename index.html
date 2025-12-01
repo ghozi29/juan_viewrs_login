@@ -27,7 +27,7 @@
       color: #333;
     }
 
-    input, select {
+    input {
       padding: 10px;
       margin: 10px 0;
       width: 100%;
@@ -61,43 +61,47 @@
 
   <!-- Firebase -->
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+
 </head>
 
 <body>
 
 <div class="container">
-  <h1>Login</h1>
 
   <!-- LOGIN FORM -->
   <div id="login-form">
+    <h1>Login</h1>
+
     <input type="text" id="login-username" placeholder="Masukkan Username" />
     <input type="password" id="login-password" placeholder="Masukkan Password" />
 
-    <!-- Tambahan opsi login -->
-    <select id="login-role">
-      <option value="pelanggan">Login Pelanggan</option>
-      <option value="staff">Login Staff/Admin</option>
-    </select>
-
     <button id="login-btn">Login</button>
-    <div class="error-message" id="login-error-message" style="display:none;">Username atau Password salah!</div>
+
+    <div class="error-message" id="login-error-message" style="display:none;">
+      Username atau Password salah!
+    </div>
   </div>
 
-  <!-- REGISTER FORM -->
+  <!-- REGISTER -->
   <div id="register-form" style="display: none;">
     <h1>Buat Akun</h1>
+
     <input type="text" id="register-username" placeholder="Masukkan Username" />
     <input type="password" id="register-password" placeholder="Masukkan Password" />
-    <button id="register-btn">Buat Akun</button>
-    <div class="error-message" id="register-error-message" style="display:none;">Akun sudah ada!</div>
+
+    <button id="register-btn">Daftar</button>
+
+    <div class="error-message" id="register-error-message" style="display:none;">
+      Username sudah dipakai!
+    </div>
   </div>
 
   <div class="switch">
     <button id="switch-to-register">Buat Akun Baru</button>
     <button id="switch-to-login" style="display:none;">Kembali ke Login</button>
   </div>
+
 </div>
 
 <script>
@@ -110,102 +114,108 @@
     storageBucket: "tongsampah1-a.appspot.com",
     messagingSenderId: "631897766480",
     appId: "1:631897766480:web:b12b5adc1f1d48d20f2f55",
-    measurementId: "G-4S53LK3D6X"
   };
 
   firebase.initializeApp(firebaseConfig);
   const database = firebase.database();
 
-  // =====================
-  // LOGIN USER / STAFF
-  // =====================
+  // ==========================================================
+  // LOGIN — otomatis cek staff → jika tidak ada cek pelanggan
+  // ==========================================================
   document.getElementById('login-btn').addEventListener('click', () => {
-    const username = document.getElementById('login-username').value;
-    const password = document.getElementById('login-password').value;
-    const role     = document.getElementById('login-role').value; // pelanggan / staff
+    const username = document.getElementById('login-username').value.trim();
+    const password = document.getElementById('login-password').value.trim();
 
     if (!username || !password) {
-      alert("Username dan Password harus diisi!");
+      alert("Harap isi semua kolom!");
       return;
     }
 
-    let dbPath = "";
-
-    if (role === "pelanggan") {
-      dbPath = `akun_viewers/${username}`;
-    } else {
-      dbPath = `akun_staff/${username}`;
-    }
-
-    database.ref(dbPath).once("value", (snapshot) => {
-      const data = snapshot.val();
-
-      if (data && data.password === password) {
-        // login berhasil
-        if (role === "pelanggan") {
-          window.location.href = "pelanggan.html";
-        } else {
+    // 1️⃣ CEK STAFF
+    database.ref("akun_staff/" + username).once("value", snapStaff => {
+      if (snapStaff.exists()) {
+        if (snapStaff.val().password === password) {
           window.location.href = "staff.html";
+        } else {
+          document.getElementById("login-error-message").style.display = "block";
         }
       } 
       else {
-        document.getElementById("login-error-message").style.display = "block";
-      }
-    });
-
-  });
-
-  // =====================
-  // REGISTER USER (PELANGGAN SAJA)
-  // =====================
-  document.getElementById('register-btn').addEventListener('click', () => {
-    const username = document.getElementById('register-username').value;
-    const password = document.getElementById('register-password').value;
-
-    if (!username || !password) {
-      alert("Username dan Password harus diisi!");
-      return;
-    }
-
-    database.ref("akun_viewers/" + username).once("value", (snapshot) => {
-      if (snapshot.exists()) {
-        document.getElementById("register-error-message").style.display = "block";
-      } else {
-        database.ref("akun_viewers/" + username).set({
-          password: password
-        })
-        .then(() => {
-          alert("Akun berhasil dibuat!");
-          toggleForms();
+        // 2️⃣ CEK VIEWERS JIKA TIDAK ADA DI STAFF
+        database.ref("akun_viewers/" + username).once("value", snapUser => {
+          if (snapUser.exists() && snapUser.val().password === password) {
+            window.location.href = "pelanggan.html";
+          } else {
+            document.getElementById("login-error-message").style.display = "block";
+          }
         });
       }
     });
+
   });
 
-  // =====================
-  // TOGGLE FORM
-  // =====================
-  document.getElementById("switch-to-register").addEventListener("click", () => toggleForms());
-  document.getElementById("switch-to-login").addEventListener("click", () => toggleForms());
+  // ==========================================================
+  // REGISTER — cek dulu ke akun_staff agar tidak bentrok!
+  // ==========================================================
+  document.getElementById('register-btn').addEventListener('click', () => {
+    const username = document.getElementById('register-username').value.trim();
+    const password = document.getElementById('register-password').value.trim();
 
+    if (!username || !password) {
+      alert("Harap isi semua kolom!");
+      return;
+    }
+
+    // CEK APAKAH USERNAME ADA DI STAFF
+    database.ref("akun_staff/" + username).once("value", snapStaff => {
+      if (snapStaff.exists()) {
+        alert("❌ Username ini sudah digunakan oleh STAFF!");
+        return;
+      }
+
+      // CEK APAKAH USERNAME ADA DI VIEWERS
+      database.ref("akun_viewers/" + username).once("value", snapUser => {
+        if (snapUser.exists()) {
+          document.getElementById("register-error-message").style.display = "block";
+        } else {
+          // BUAT AKUN VIEWER BARU
+          database.ref("akun_viewers/" + username).set({
+            password: password
+          }).then(() => {
+            alert("Akun berhasil dibuat!");
+            toggleForms();
+          });
+        }
+      });
+    });
+
+  });
+
+  // ==========================================================
+  // SWITCH LOGIN / REGISTER
+  // ==========================================================
   function toggleForms() {
     const loginForm = document.getElementById("login-form");
     const registerForm = document.getElementById("register-form");
-    const toRegister = document.getElementById("switch-to-register");
-    const toLogin = document.getElementById("switch-to-login");
+    const btnToReg = document.getElementById("switch-to-register");
+    const btnToLog = document.getElementById("switch-to-login");
 
     if (loginForm.style.display === "none") {
       loginForm.style.display = "block";
       registerForm.style.display = "none";
-      toRegister.style.display = "block";
-      toLogin.style.display = "none";
+      btnToReg.style.display = "block";
+      btnToLog.style.display = "none";
     } else {
       loginForm.style.display = "none";
       registerForm.style.display = "block";
-      toRegister.style.display = "none";
-      toLogin.style.display = "block";
+      btnToReg.style.display = "none";
+      btnToLog.style.display = "block";
     }
   }
+
+  document.getElementById("switch-to-register").addEventListener("click", toggleForms);
+  document.getElementById("switch-to-login").addEventListener("click", toggleForms);
+
 </script>
 
 </body>
