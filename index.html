@@ -134,7 +134,7 @@
     if (role === "pelanggan") {
       dbPath = `akun_viewers/${username}`;
     } else {
-      dbPath = `akun_staff/admin/${username}`;
+      dbPath = `akun_staff/${username}`;
     }
 
     database.ref(dbPath).once("value", (snapshot) => {
