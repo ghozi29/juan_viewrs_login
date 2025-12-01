@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Login Staff Laundry</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      margin: 0;
+      padding: 0;
+    }
+
+    .login-container {
+      width: 90%;
+      max-width: 400px;
+      margin: 80px auto;
+      background-color: white;
+      padding: 20px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      border-radius: 8px;
+      display: none;
+    }
+
+    .container {
+      width: 95%;
+      max-width: 1200px;
+      margin: 30px auto;
+      background-color: white;
+      padding: 20px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      border-radius: 8px;
+      display: none;
+      overflow-x: auto;
+    }
+
+    h1, h2 {
+      text-align: center;
+      color: #333;
+    }
+
+    input[type="text"], input[type="password"] {
+      width: 100%;
+      padding: 8px;
+      margin: 8px 0;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+
+    button {
+      width: 100%;
+      padding: 8px;
+      background-color: #3efa41;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    button:hover {
+      background-color: #34c938;
+    }
+
+    .top-bar {
+      display: flex;
+      justify-content: flex-end;
+    }
+
+    .logout-button {
+      background-color: red;
+      color: white;
+      padding: 6px 12px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .logout-button:hover {
+      background-color: darkred;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 15px;
+      min-width: 800px;
+    }
+
+    th, td {
+      padding: 10px;
+      border: 1px solid #ccc;
+      text-align: center;
+    }
+
+    th {
+      background-color: #3efa41;
+      color: #000;
+    }
+
+    .delete-button {
+      background-color: red;
+      color: white;
+      border: none;
+      padding: 4px 8px;
+      cursor: pointer;
+      border-radius: 5px;
+      font-size: 13px;
+    }
+
+    .status-dropdown {
+      padding: 4px;
+      border-radius: 5px;
+      font-size: 13px;
+    }
+
+    #pagination-controls {
+      text-align: center;
+      margin-top: 15px;
+    }
+
+    #pagination-controls button {
+      padding: 4px 8px;
+      margin: 2px;
+      border-radius: 5px;
+      border: 1px solid #3efa41;
+      background-color: white;
+      color: #3efa41;
+      font-weight: bold;
+      cursor: pointer;
+      font-size: 13px;
+    }
+
+    #pagination-controls button.active {
+      background-color: #3efa41;
+      color: white;
+    }
+
+    @media (max-width: 768px) {
+      table, thead, tbody, th, td, tr {
+        font-size: 12px;
+      }
+    }
+  </style>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+
+<!-- Login Form -->
+<div class="login-container" id="login-container">
+  <h2>Login Staff Laundry</h2>
+  <input type="text" id="username" placeholder="ID Staff">
+  <input type="password" id="password" placeholder="Password">
+  <button id="login-button">Login</button>
+</div>
+
+<!-- Change Password Form -->
+<div class="login-container" id="change-password-container">
+  <h2>Ganti Password</h2>
+  <input type="text" id="cp-username" placeholder="ID Staff">
+  <input type="text" id="cp-token" placeholder="Kode Otentikasi">
+  <input type="password" id="cp-new-password" placeholder="Password Baru">
+  <button id="cp-submit">Ganti Password</button>
+  <button id="cp-back" style="margin-top: 10px;">Kembali ke Login</button>
+</div>
+
+<!-- Main Container -->
+<div class="container" id="main-container">
+  <div class="top-bar">
+    <button class="logout-button" id="logout-button">Logout</button>
+  </div>
+  <h1>Website Staff Data Pelanggan Laundry</h1>
+  <table id="laundryTable">
+    <thead>
+      <tr>
+        <th>No</th>
+        <th>Nama</th>
+        <th>Harga</th>
+        <th>Jumlah</th>
+        <th>Berat</th>
+        <th>Layanan</th>
+        <th>Tanggal Masuk</th>
+        <th>Tanggal Selesai</th>
+        <th>Kode</th>
+        <th>Status</th>
+        <th>Aksi</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+  <div id="pagination-controls"></div>
+</div>
+
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyA0nLjuJd1cah3yHkcWLNvmqPA5cAnSOjI",
+    authDomain: "tongsampah1-a.firebaseapp.com",
+    databaseURL: "https://tongsampah1-a-default-rtdb.firebaseio.com",
+    projectId: "tongsampah1-a",
+    storageBucket: "tongsampah1-a.appspot.com",
+    messagingSenderId: "631897766480",
+    appId: "1:631897766480:web:b12b5adc1f1d48d20f2f55"
+  };
+
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.database();
+  const akunRef = db.ref("akun_staff");
+  const dataRef = db.ref("databasee");
+  const tokenRef = db.ref("juan_staff/otentikasi");
+
+  let allData = [];
+  let currentPage = 1;
+  const pageSize = 10;
+
+  function formatRupiah(angka) {
+    if (!angka) return '0';
+    return parseInt(angka).toLocaleString('id-ID');
+  }
+
+  function renderTable(page = 1, data = allData) {
+    const tbody = $('#laundryTable tbody');
+    tbody.empty();
+
+    const start = (page - 1) * pageSize;
+    const end = Math.min(start + pageSize, data.length);
+    const pageData = data.slice(start, end);
+
+    if (pageData.length === 0) {
+      tbody.append('<tr><td colspan="11">Data tidak ditemukan</td></tr>');
+      return;
+    }
+
+    pageData.forEach((item, i) => {
+      tbody.append(`
+        <tr>
+          <td>${start + i + 1}</td>
+          <td>${item.nama || '-'}</td>
+          <td>Rp ${formatRupiah(item.harga)}</td>
+          <td>${item.jumlah || '0'}</td>
+          <td>${item.berat || '0'}</td>
+          <td>${item.layanan || '-'}</td>
+          <td>${item.tanggal || '-'}</td>
+          <td>${item.tanggalPengambilan || '-'}</td>
+          <td>${item.code || '-'}</td>
+          <td>
+            <select class="status-dropdown" data-id="${item.key}">
+              <option value="On Proses" ${item.status === 'On Proses' ? 'selected' : ''}>On Proses</option>
+              <option value="Siap Diambil" ${item.status === 'Siap Diambil' ? 'selected' : ''}>Siap Diambil</option>
+              <option value="Sudah Diambil" ${item.status === 'Sudah Diambil' ? 'selected' : ''}>Sudah Diambil</option>
+            </select>
+          </td>
+          <td><button class="delete-button" data-id="${item.key}">Hapus</button></td>
+        </tr>
+      `);
+    });
+
+    renderPagination(data);
+  }
+
+  function renderPagination(data = allData) {
+    const totalPages = Math.ceil(data.length / pageSize);
+    let buttons = "";
+
+    for (let i = 1; i <= totalPages; i++) {
+      const isActive = i === currentPage ? "active" : "";
+      buttons += `<button class="${isActive}" data-page="${i}">${i}</button>`;
+    }
+
+    $('#pagination-controls').html(buttons);
+  }
+
+  function loadData() {
+    dataRef.orderByChild("createdAt").once('value', snapshot => {
+      allData = [];
+      snapshot.forEach(child => {
+        const val = child.val();
+        val.key = child.key;
+        allData.unshift(val);
+      });
+      renderTable(currentPage = 1);
+    });
+  }
+
+  $(document).ready(() => {
+    $('#login-container').show();
+
+    $('#login-button').click(function () {
+      const username = $('#username').val().trim();
+      const password = $('#password').val().trim();
+
+      if (!username || !password) {
+        alert("Harap isi semua kolom!");
+        return;
+      }
+
+      akunRef.child(username).once('value', snapshot => {
+        const data = snapshot.val();
+        if (data && data.password === password) {
+          alert("✅ Login berhasil!");
+          $('#login-container').hide();
+          $('#main-container').show();
+          loadData();
+        } else {
+          alert("❌ ID atau Password salah!");
+        }
+      });
+    });
+
+    $('#logout-button').click(function () {
+      if (confirm("Yakin ingin logout?")) {
+        $('#main-container').hide();
+        $('#login-container').show();
+        $('#username, #password').val('');
+      }
+    });
+
+    $('#pagination-controls').on('click', 'button', function () {
+      currentPage = parseInt($(this).data('page'));
+      renderTable(currentPage);
+    });
+
+    $(document).on('change', '.status-dropdown', function () {
+      const key = $(this).data('id');
+      const newStatus = $(this).val();
+      dataRef.child(key).child('status').set(newStatus)
+        .then(() => console.log("✅ Status diperbarui"))
+        .catch(err => alert("❌ Gagal update status: " + err));
+    });
+
+    $(document).on('click', '.delete-button', function () {
+      const key = $(this).data('id');
+      if (!confirm("Yakin hapus data ini?")) return;
+      dataRef.child(key).remove()
+        .then(() => {
+          alert("✅ Data berhasil dihapus");
+          loadData();
+        })
+        .catch(err => alert("❌ Gagal hapus: " + err));
+    });
+
+    $('#to-change-password').click(() => {
+      $('#login-container').hide();
+      $('#change-password-container').show();
+    });
+
+    $('#cp-back').click(() => {
+      $('#change-password-container').hide();
+      $('#login-container').show();
+    });
+
+    $('#cp-submit').click(() => {
+      const username = $('#cp-username').val().trim();
+      const token = $('#cp-token').val().trim();
+      const newPassword = $('#cp-new-password').val().trim();
+
+      if (!username || !token || !newPassword) {
+        alert("Harap isi semua kolom!");
+        return;
+      }
+
+      akunRef.child(username).once('value', snapshot => {
+        const data = snapshot.val();
+        if (!data) {
+          alert("❌ ID Staff tidak ditemukan.");
+          return;
+        }
+
+        tokenRef.once('value', snap => {
+  const kodeAsli = snap.val(); // "admin"
+  console.log("Token input:", token);
+  console.log("Token Firebase:", kodeAsli);
+
+  if (token.trim() === kodeAsli.trim()) {
+    akunRef.child(username).child("password").set(newPassword)
+      .then(() => {
+        alert("✅ Password berhasil diganti!");
+        $('#change-password-container').hide();
+        $('#login-container').show();
+        $('#cp-username, #cp-token, #cp-new-password').val('');
+      })
+      .catch(err => alert("❌ Gagal mengganti password: " + err));
+  } else {
+    alert("❌ Kode otentikasi salah!");
+  }
+});
+      });
+    });
+  });
+</script>
+
+</body>
+</html>
