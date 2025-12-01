@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Login & Buat Akun</title>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f4f4f4;
+    }
+
+    .container {
+      width: 320px;
+      margin: 60px auto;
+      background-color: white;
+      padding: 20px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      border-radius: 8px;
+    }
+
+    h1 {
+      text-align: center;
+      color: #333;
+    }
+
+    input, select {
+      padding: 10px;
+      margin: 10px 0;
+      width: 100%;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+    }
+
+    button {
+      padding: 10px;
+      margin: 10px 0;
+      width: 100%;
+      border: none;
+      background-color: #3efa41;
+      color: white;
+      cursor: pointer;
+      font-weight: bold;
+      border-radius: 5px;
+    }
+
+    .error-message {
+      color: red;
+      font-weight: bold;
+      text-align: center;
+    }
+
+    .switch {
+      text-align: center;
+      margin-top: 15px;
+    }
+  </style>
+
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+</head>
+
+<body>
+
+<div class="container">
+  <h1>Login</h1>
+
+  <!-- LOGIN FORM -->
+  <div id="login-form">
+    <input type="text" id="login-username" placeholder="Masukkan Username" />
+    <input type="password" id="login-password" placeholder="Masukkan Password" />
+
+    <!-- Tambahan opsi login -->
+    <select id="login-role">
+      <option value="pelanggan">Login Pelanggan</option>
+      <option value="staff">Login Staff/Admin</option>
+    </select>
+
+    <button id="login-btn">Login</button>
+    <div class="error-message" id="login-error-message" style="display:none;">Username atau Password salah!</div>
+  </div>
+
+  <!-- REGISTER FORM -->
+  <div id="register-form" style="display: none;">
+    <h1>Buat Akun</h1>
+    <input type="text" id="register-username" placeholder="Masukkan Username" />
+    <input type="password" id="register-password" placeholder="Masukkan Password" />
+    <button id="register-btn">Buat Akun</button>
+    <div class="error-message" id="register-error-message" style="display:none;">Akun sudah ada!</div>
+  </div>
+
+  <div class="switch">
+    <button id="switch-to-register">Buat Akun Baru</button>
+    <button id="switch-to-login" style="display:none;">Kembali ke Login</button>
+  </div>
+</div>
+
+<script>
+  // Firebase config
+  const firebaseConfig = {
+    apiKey: "AIzaSyA0nLjuJd1cah3yHkcWLNvmqPA5cAnSOjI",
+    authDomain: "tongsampah1-a.firebaseapp.com",
+    databaseURL: "https://tongsampah1-a-default-rtdb.firebaseio.com",
+    projectId: "tongsampah1-a",
+    storageBucket: "tongsampah1-a.appspot.com",
+    messagingSenderId: "631897766480",
+    appId: "1:631897766480:web:b12b5adc1f1d48d20f2f55",
+    measurementId: "G-4S53LK3D6X"
+  };
+
+  firebase.initializeApp(firebaseConfig);
+  const database = firebase.database();
+
+  // =====================
+  // LOGIN USER / STAFF
+  // =====================
+  document.getElementById('login-btn').addEventListener('click', () => {
+    const username = document.getElementById('login-username').value;
+    const password = document.getElementById('login-password').value;
+    const role     = document.getElementById('login-role').value; // pelanggan / staff
+
+    if (!username || !password) {
+      alert("Username dan Password harus diisi!");
+      return;
+    }
+
+    let dbPath = "";
+
+    if (role === "pelanggan") {
+      dbPath = `akun_viewers/${username}`;
+    } else {
+      dbPath = `akun_staff/admin/${username}`;
+    }
+
+    database.ref(dbPath).once("value", (snapshot) => {
+      const data = snapshot.val();
+
+      if (data && data.password === password) {
+        // login berhasil
+        if (role === "pelanggan") {
+          window.location.href = "pelanggan.html";
+        } else {
+          window.location.href = "staff.html";
+        }
+      } 
+      else {
+        document.getElementById("login-error-message").style.display = "block";
+      }
+    });
+
+  });
+
+  // =====================
+  // REGISTER USER (PELANGGAN SAJA)
+  // =====================
+  document.getElementById('register-btn').addEventListener('click', () => {
+    const username = document.getElementById('register-username').value;
+    const password = document.getElementById('register-password').value;
+
+    if (!username || !password) {
+      alert("Username dan Password harus diisi!");
+      return;
+    }
+
+    database.ref("akun_viewers/" + username).once("value", (snapshot) => {
+      if (snapshot.exists()) {
+        document.getElementById("register-error-message").style.display = "block";
+      } else {
+        database.ref("akun_viewers/" + username).set({
+          password: password
+        })
+        .then(() => {
+          alert("Akun berhasil dibuat!");
+          toggleForms();
+        });
+      }
+    });
+  });
+
+  // =====================
+  // TOGGLE FORM
+  // =====================
+  document.getElementById("switch-to-register").addEventListener("click", () => toggleForms());
+  document.getElementById("switch-to-login").addEventListener("click", () => toggleForms());
+
+  function toggleForms() {
+    const loginForm = document.getElementById("login-form");
+    const registerForm = document.getElementById("register-form");
+    const toRegister = document.getElementById("switch-to-register");
+    const toLogin = document.getElementById("switch-to-login");
+
+    if (loginForm.style.display === "none") {
+      loginForm.style.display = "block";
+      registerForm.style.display = "none";
+      toRegister.style.display = "block";
+      toLogin.style.display = "none";
+    } else {
+      loginForm.style.display = "none";
+      registerForm.style.display = "block";
+      toRegister.style.display = "none";
+      toLogin.style.display = "block";
+    }
+  }
+</script>
+
+</body>
+</html>
