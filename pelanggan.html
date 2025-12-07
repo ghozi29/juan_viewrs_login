@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>ADDA LAUNDRY - Data Pelanggan</title>
+    <title>ADDA LAUNDRY - Data Transaksi</title>
     <style>
         /* --- STYLING UMUM --- */
         body {
@@ -97,7 +97,7 @@
             border: 1px dashed #ffd54f;
         }
 
-        /* --- STYLING DATA PELANGGAN (SAMA DENGAN SEBELUMNYA) --- */
+        /* --- STYLING DATA PELANGGAN --- */
         .search-form {
             display: flex;
             justify-content: center;
@@ -308,19 +308,27 @@
     function formatRupiah(angka) {
         const number = parseInt(angka);
         if (isNaN(number)) return "Rp0,00";
-        // Menggunakan toLocaleString untuk format Rupiah
         return 'Rp ' + number.toLocaleString('id-ID', { minimumFractionDigits: 2 });
     }
 
     function showNoResultsMessage() {
         $('#no-results-message').show();
         $('#laundryTable').hide();
-        $('#pagination-controls').empty(); // Kosongkan kontrol paginasi
+        $('#pagination-controls').empty();
     }
 
     function hideNoResultsMessage() {
         $('#no-results-message').hide();
         $('#laundryTable').show();
+    }
+    
+    // FUNGSI BARU: Untuk mengosongkan tabel dan menampilkan pesan default
+    function clearTable() {
+        allData = [];
+        $('#laundryTable tbody').empty();
+        $('#laundryTable tbody').append('<tr><td colspan="10">Masukkan Nama atau Kode Transaksi untuk memulai pencarian.</td></tr>');
+        $('#pagination-controls').empty();
+        hideNoResultsMessage();
     }
 
     // --- FUNGSI PAGINASI & RENDER TABEL ---
@@ -328,23 +336,17 @@
         const tableBody = $('#laundryTable tbody');
         tableBody.empty();
         
-        currentPage = page; // Set halaman aktif
-
-        const start = (page - 1) * pageSize;
-        const end = start + pageSize;
-        const pageData = allData.slice(start, end);
+        currentPage = page;
 
         if (allData.length === 0) {
-            tableBody.append('<tr><td colspan="10">Tidak ada data</td></tr>');
+            tableBody.append('<tr><td colspan="10">Tidak ada data yang ditampilkan.</td></tr>');
             $('#pagination-controls').empty();
             return;
         }
         
-        if (pageData.length === 0 && allData.length > 0) {
-             // Kasus jika filter menghasilkan data, tapi halaman kosong (misal: hanya 5 data, tapi mencoba load page 2)
-            tableBody.append('<tr><td colspan="10">Data tidak ditemukan pada halaman ini.</td></tr>');
-            return;
-        }
+        const start = (page - 1) * pageSize;
+        const end = start + pageSize;
+        const pageData = allData.slice(start, end);
 
 
         pageData.forEach((item, index) => {
@@ -373,27 +375,22 @@
         const totalPages = Math.ceil(allData.length / pageSize);
         let html = '';
         
-        if (totalPages <= 1) {
+        if (totalPages <= 1 || allData.length === 0) {
             $('#pagination-controls').empty();
             return;
         }
 
-        // Tampilkan tombol Previous
-        html += `<button class="pagination-prev" data-page="${Math.max(1, currentPage - 1)}" ${currentPage === 1 ? 'disabled' : ''}>&laquo; Prev</button>`;
+        html += `<button class="pagination-prev" data-page="${Math.max(1, currentPage - 1)}" ${currentPage === 1 ? 'disabled' : ''}>« Prev</button>`;
 
-        // Tampilkan tombol 1, 2, 3, ... (atau lebih dinamis)
         for (let i = 1; i <= totalPages; i++) {
             const active = (i === currentPage) ? 'active' : '';
             html += `<button class="pagination-btn ${active}" data-page="${i}">${i}</button>`;
         }
         
-        // Tampilkan tombol Next
-        html += `<button class="pagination-next" data-page="${Math.min(totalPages, currentPage + 1)}" ${currentPage === totalPages ? 'disabled' : ''}>Next &raquo;</button>`;
-
+        html += `<button class="pagination-next" data-page="${Math.min(totalPages, currentPage + 1)}" ${currentPage === totalPages ? 'disabled' : ''}>Next »</button>`;
 
         $('#pagination-controls').html(html);
         
-        // Event listener untuk tombol paginasi
         $('#pagination-controls button').off('click').on('click', function() {
             const newPage = parseInt($(this).attr('data-page'));
             if (!isNaN(newPage) && newPage !== currentPage) {
@@ -402,34 +399,23 @@
         });
     }
 
-    // --- FUNGSI PENCARIAN & MUAT DATA ---
-    function loadAllData(callback) {
-         database.ref('databasee').once('value')
-        .then((snapshot) => {
-            let dataArr = [];
-            snapshot.forEach((childSnapshot) => {
-                dataArr.push(childSnapshot.val());
-            });
-            allData = dataArr;
-            if (callback) callback();
-        })
-        .catch(error => {
-            console.error("Kesalahan memuat data:", error);
-            $('#error-message').show();
-        });
-    }
-
-
+    // --- FUNGSI PENCARIAN UTAMA ---
     function searchData(name, code) {
         hideNoResultsMessage();
-        currentPage = 1; // Reset ke halaman 1
+        currentPage = 1; 
+
+        if (!code && !name) {
+            // Jika kedua input kosong, KOSONGKAN TABEL.
+            clearTable();
+            return; 
+        }
 
         if (code) {
             // Pencarian berdasarkan Kode Transaksi
             database.ref('databasee').child(code).once('value', (snapshot) => {
                 const data = snapshot.val();
                 if (data) {
-                    allData = [data]; // Hanya satu data
+                    allData = [data]; 
                     hideNoResultsMessage();
                 } else {
                     allData = [];
@@ -451,12 +437,11 @@
                 allData = filteredData;
                 if (allData.length === 0) {
                     showNoResultsMessage();
+                } else {
+                    hideNoResultsMessage();
                 }
                 renderTablePage(currentPage);
             });
-        } else {
-            // Jika tidak ada pencarian, tampilkan semua data
-            loadAllData(() => renderTablePage(currentPage));
         }
     }
 
@@ -468,14 +453,17 @@
         $('.nav-link').removeClass('active');
         $(`[data-target="${targetId}"]`).addClass('active');
 
-        // Khusus untuk tab Data Pelanggan, muat data
+        // Khusus untuk tab Data Pelanggan, pastikan tabel kosong jika tidak ada input pencarian
         if (targetId === 'data-section') {
-            const name = $('#search-name').val();
-            const code = $('#search-code').val();
+            const name = $('#search-name').val().trim();
+            const code = $('#search-code').val().trim();
+            
             if (name || code) {
-                 searchData(name, code); // Jalankan ulang pencarian jika ada filter
+                 // Jika ada nilai di input, jalankan pencarian
+                 searchData(name, code); 
             } else {
-                 loadAllData(() => renderTablePage(1)); // Muat semua data jika tidak ada filter
+                 // Jika input kosong, kosongkan tabel saat tab dibuka
+                 clearTable(); 
             }
         }
     }
@@ -495,13 +483,10 @@
 
         // Event listener untuk tombol cari
         $('#search-btn').click(function() {
-            const name = $('#search-name').val();
-            const code = $('#search-code').val();
+            const name = $('#search-name').val().trim();
+            const code = $('#search-code').val().trim();
             searchData(name, code);
         });
-        
-        // Event listener untuk pagination (sudah dipindah ke dalam renderPagination)
-
     });
 </script>
 </body>
