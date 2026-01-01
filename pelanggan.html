@@ -1,298 +1,158 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>ADDA LAUNDRY - Data Transaksi</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>ADDA LAUNDRY - Data Transaksi</title>
 
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            margin: 0;
-        }
+<style>
+body{font-family:Arial;margin:0;background:#f4f4f4}
+.container{width:90%;margin:50px auto;background:#fff;padding:20px;border-radius:8px}
+.navbar{background:#3efa41;overflow:hidden}
+.navbar a{float:left;color:#fff;padding:14px 20px;text-decoration:none;font-weight:bold}
+.navbar a.active{background:#2eac30}
 
-        .navbar {
-            background-color: #3efa41;
-            overflow: hidden;
-        }
+.content-section{display:none}
 
-        .navbar a {
-            float: left;
-            color: white;
-            padding: 14px 20px;
-            text-decoration: none;
-            font-weight: bold;
-        }
+table{width:100%;border-collapse:collapse;margin-top:20px}
+th,td{border:1px solid #000;padding:10px;text-align:center}
+th{background:#3efa41;color:white}
 
-        .navbar a:hover {
-            background-color: #35d836;
-        }
+.phone-input{width:130px;padding:5px}
+.save-phone-btn{
+  padding:5px 10px;
+  margin-left:5px;
+  background:#3efa41;
+  border:none;
+  color:white;
+  cursor:pointer;
+  border-radius:4px;
+  display:none;
+}
+</style>
 
-        .navbar a.active {
-            background-color: #2eac30;
-        }
-
-        #logout-btn {
-            float: right;
-            background-color: #e53935;
-        }
-
-        #logout-btn:hover {
-            background-color: #c62828;
-        }
-
-        .container {
-            width: 90%;
-            margin: 40px auto;
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-        }
-
-        h1 {
-            text-align: center;
-        }
-
-        .content-section {
-            display: none;
-        }
-
-        .search-form {
-            text-align: center;
-            margin-bottom: 15px;
-        }
-
-        .search-form input {
-            padding: 8px;
-            width: 200px;
-            margin: 0 5px;
-        }
-
-        .search-form button {
-            padding: 8px 15px;
-            background: #3efa41;
-            border: none;
-            color: white;
-            font-weight: bold;
-            cursor: pointer;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        th, td {
-            border: 1px solid black;
-            padding: 8px;
-            text-align: center;
-        }
-
-        th {
-            background-color: #3efa41;
-            color: white;
-        }
-
-        #pagination-controls {
-            text-align: center;
-            margin-top: 10px;
-        }
-
-        #pagination-controls button {
-            margin: 3px;
-            padding: 5px 10px;
-            border: 1px solid #3efa41;
-            background: white;
-            color: #3efa41;
-            cursor: pointer;
-        }
-
-        #pagination-controls button.active {
-            background: #3efa41;
-            color: white;
-        }
-
-        .no-results {
-            color: red;
-            font-weight: bold;
-            text-align: center;
-            margin-top: 15px;
-        }
-    </style>
-
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
 </head>
 
 <body>
 
 <div class="navbar">
-    <a href="#" class="nav-link active" data-target="home-section">Home</a>
-    <a href="#" class="nav-link" data-target="data-section">Data Pelanggan</a>
-    <a href="#" id="logout-btn">Logout</a>
+  <a href="#" class="nav-link active" data-target="home-section">Home</a>
+  <a href="#" class="nav-link" data-target="data-section">Data Pelanggan</a>
 </div>
 
 <div class="container">
 
-    <!-- HOME -->
-    <div id="home-section" class="content-section" style="display:block;">
-        <h1>Selamat Datang di ADDA Laundry 🧺</h1>
-        <p style="text-align:center;">Layanan laundry profesional dan terpercaya.</p>
-    </div>
+<!-- ================= HOME (ASLI – TIDAK DIUBAH) ================= -->
+<div id="home-section" class="content-section" style="display:block;">
+  <h1>Selamat Datang di ADDA Laundry 🧺</h1>
 
-    <!-- DATA -->
-    <div id="data-section" class="content-section">
-        <h1>Data Transaksi Pelanggan</h1>
+  <p>
+    ADDA Laundry menyediakan layanan pencucian profesional untuk memenuhi kebutuhan pakaian bersih Anda.
+  </p>
 
-        <div class="search-form">
-            <input type="text" id="search-name" placeholder="Nama">
-            <input type="text" id="search-code" placeholder="Kode Transaksi">
-            <button id="search-btn">Cari</button>
-        </div>
+  <h3>Pilihan Layanan:</h3>
+  <ul>
+    <li>Layanan Biasa – 5 Hari – Rp7.000/KG</li>
+    <li>Layanan Sedang – 3 Hari – Rp9.000/KG</li>
+    <li>Layanan Cepat – 1 Hari – Rp10.000/KG</li>
+  </ul>
 
-        <table id="laundryTable">
-            <thead>
-                <tr>
-                    <th>No</th>
-                    <th>Nama</th>
-                    <th>No Telepon</th>
-                    <th>Harga</th>
-                    <th>Jumlah</th>
-                    <th>Berat</th>
-                    <th>Layanan</th>
-                    <th>Tgl Masuk</th>
-                    <th>Tgl Selesai</th>
-                    <th>Kode</th>
-                    <th>Status</th>
-                </tr>
-            </thead>
-            <tbody></tbody>
-        </table>
+  <p><b>Kontak Admin:</b> +62 813-8431-3155</p>
+  <p style="color:red;font-weight:bold">WAJIB membawa struk transaksi</p>
+</div>
 
-        <div id="pagination-controls"></div>
-        <div id="no-results-message" class="no-results" style="display:none;">
-            Data tidak ditemukan
-        </div>
-    </div>
+<!-- ================= DATA ================= -->
+<div id="data-section" class="content-section">
+<h1>Data Pelanggan</h1>
 
+<table id="laundryTable">
+<thead>
+<tr>
+<th>No</th>
+<th>Nama</th>
+<th>No Telepon</th>
+<th>Harga</th>
+<th>Berat</th>
+<th>Kode</th>
+</tr>
+</thead>
+<tbody></tbody>
+</table>
+
+</div>
 </div>
 
 <script>
-    const firebaseConfig = {
-        apiKey: "AIzaSyA0nLjuJd1cah3yHkcWLNvmqPA5cAnSOjI",
-        authDomain: "tongsampah1-a.firebaseapp.com",
-        databaseURL: "https://tongsampah1-a-default-rtdb.firebaseio.com",
-        projectId: "tongsampah1-a",
-        storageBucket: "tongsampah1-a.appspot.com",
-        messagingSenderId: "631897766480",
-        appId: "1:631897766480:web:b12b5adc1f1d48d20f2f55"
-    };
+const firebaseConfig = {
+ apiKey: "AIzaSyA0nLjuJd1cah3yHkcWLNvmqPA5cAnSOjI",
+ databaseURL: "https://tongsampah1-a-default-rtdb.firebaseio.com"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
 
-    firebase.initializeApp(firebaseConfig);
-    const database = firebase.database();
+let allData = [];
 
-    let allData = [];
-    const pageSize = 10;
-    let currentPage = 1;
+function loadData(){
+ db.ref("databasee").once("value", snap=>{
+  allData=[];
+  snap.forEach(c=>{
+    let d=c.val();
+    d.key=c.key;
+    allData.push(d);
+  });
+  renderTable();
+ });
+}
 
-    function formatRupiah(x) {
-        return 'Rp ' + (parseInt(x || 0)).toLocaleString('id-ID');
-    }
+function renderTable(){
+ const tb=$("#laundryTable tbody");
+ tb.empty();
+ allData.forEach((d,i)=>{
+ tb.append(`
+ <tr>
+  <td>${i+1}</td>
+  <td>${d.nama||'-'}</td>
+  <td>
+    <input class="phone-input" data-key="${d.key}" value="${d.telepon||''}">
+    <button class="save-phone-btn" data-key="${d.key}">OK</button>
+  </td>
+  <td>${d.harga||0}</td>
+  <td>${d.berat||0}</td>
+  <td>${d.code||d.key}</td>
+ </tr>
+ `);
+ });
+}
 
-    function renderTable(page = 1) {
-        const tbody = $('#laundryTable tbody');
-        tbody.empty();
-        currentPage = page;
+/* tampilkan tombol OK saat diketik */
+$(document).on("input",".phone-input",function(){
+ $(this).siblings(".save-phone-btn").show();
+});
 
-        if (allData.length === 0) {
-            tbody.append('<tr><td colspan="11">Tidak ada data</td></tr>');
-            return;
-        }
+/* simpan saat klik OK */
+$(document).on("click",".save-phone-btn",function(){
+ const key=$(this).data("key");
+ const phone=$(this).siblings(".phone-input").val();
+ db.ref("databasee/"+key).update({telepon:phone});
+ $(this).hide();
+ alert("Nomor telepon disimpan");
+});
 
-        const start = (page - 1) * pageSize;
-        const dataPage = allData.slice(start, start + pageSize);
+/* NAVIGASI */
+$(".nav-link").click(function(e){
+ e.preventDefault();
+ $(".content-section").hide();
+ $("#"+$(this).data("target")).show();
+ $(".nav-link").removeClass("active");
+ $(this).addClass("active");
 
-        dataPage.forEach((item, i) => {
-            tbody.append(`
-                <tr>
-                    <td>${start + i + 1}</td>
-                    <td>${item.nama || '-'}</td>
-                    <td>
-                        <input type="text"
-                            class="phone-input"
-                            data-code="${item.code}"
-                            value="${item.telepon || ''}"
-                            placeholder="08xxxxxxxxxx">
-                    </td>
-                    <td>${formatRupiah(item.harga)}</td>
-                    <td>${item.jumlah || 0}</td>
-                    <td>${item.berat || 0}</td>
-                    <td>${item.layanan || '-'}</td>
-                    <td>${item.tanggal || '-'}</td>
-                    <td>${item.tanggalPengambilan || '-'}</td>
-                    <td>${item.code || '-'}</td>
-                    <td>${item.status || 'On Proses'}</td>
-                </tr>
-            `);
-        });
-    }
-
-    function searchData(name, code) {
-        $('#no-results-message').hide();
-        allData = [];
-
-        if (code) {
-            database.ref('databasee/' + code).once('value', snap => {
-                if (snap.exists()) {
-                    allData = [snap.val()];
-                } else {
-                    $('#no-results-message').show();
-                }
-                renderTable();
-            });
-        } else {
-            database.ref('databasee').once('value', snap => {
-                snap.forEach(child => {
-                    const d = child.val();
-                    if (d.nama && d.nama.toLowerCase().includes(name.toLowerCase())) {
-                        allData.push(d);
-                    }
-                });
-                if (allData.length === 0) $('#no-results-message').show();
-                renderTable();
-            });
-        }
-    }
-
-    $(document).on('change', '.phone-input', function () {
-        const code = $(this).data('code');
-        const phone = $(this).val();
-
-        database.ref('databasee/' + code).update({
-            telepon: phone
-        });
-    });
-
-    $('.nav-link').click(function (e) {
-        e.preventDefault();
-        $('.content-section').hide();
-        $('#' + $(this).data('target')).show();
-        $('.nav-link').removeClass('active');
-        $(this).addClass('active');
-    });
-
-    $('#search-btn').click(() => {
-        searchData($('#search-name').val(), $('#search-code').val());
-    });
-
-    $('#logout-btn').click(function (e) {
-        e.preventDefault();
-        if (confirm("Logout sekarang?")) {
-            window.location.href = "login.html";
-        }
-    });
+ if($(this).data("target")==="data-section"){
+   loadData();
+ }
+});
 </script>
 
 </body>
