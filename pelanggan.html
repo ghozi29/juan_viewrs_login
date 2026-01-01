@@ -1,157 +1,50 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>ADDA LAUNDRY - Data Transaksi</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f4f4f4;
-        }
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>ADDA LAUNDRY - Data Transaksi</title>
+<style>
+/* --- STYLING UMUM --- */
+body { font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #f4f4f4; }
+.container { width: 90%; margin: 50px auto; background-color: white; padding: 20px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); border-radius: 8px; }
+h1 { text-align: center; color: #333; margin-bottom: 20px; }
 
-        .container {
-            width: 90%;
-            margin: 50px auto;
-            background-color: white;
-            padding: 20px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            border-radius: 8px;
-        }
+/* --- STYLING NAVBAR --- */
+.navbar { background-color: #3efa41; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+.navbar a { float: left; display: block; color: white; text-align: center; padding: 14px 20px; text-decoration: none; font-weight: bold; transition: background-color 0.3s; }
+.navbar a:hover { background-color: #35d836; }
+.navbar a.active { background-color: #2eac30; }
 
-        h1 {
-            text-align: center;
-            color: #333;
-            margin-bottom: 20px;
-        }
+/* --- STYLING HOME PAGE --- */
+.home-content { padding: 20px; line-height: 1.6; }
+.service-list { list-style-type: none; padding: 0; }
+.service-list li { background: #e6ffe6; margin-bottom: 10px; padding: 10px; border-radius: 5px; border-left: 5px solid #3efa41; }
+.map-box { margin: 20px 0; text-align: center; border: 1px solid #ddd; padding: 10px; border-radius: 8px; }
+.map-box iframe { width: 100%; height: 300px; border: none; border-radius: 5px; }
+.contact-info { text-align: center; margin-top: 15px; padding: 10px; background-color: #fff8e1; border-radius: 5px; border: 1px dashed #ffd54f; }
 
-        .navbar {
-            background-color: #3efa41;
-            overflow: hidden;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
+/* --- STYLING DATA PELANGGAN --- */
+.search-form { display: flex; justify-content: center; margin-bottom: 20px; }
+.search-form input { padding: 10px; margin: 0 10px; border: 1px solid #ddd; border-radius: 5px; width: 200px; }
+.search-form button { padding: 10px 20px; border: 1px solid #3efa41; border-radius: 5px; background-color: #3efa41; color: white; cursor: pointer; font-weight: bold; }
+table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+th, td { padding: 12px; text-align: center; border: 1px solid #000000; }
+th { background-color: #3efa41; color: white; }
+.error-message, .no-results { color: red; font-weight: bold; text-align: center; margin-top: 20px; }
+#pagination-controls { margin-top: 15px; text-align: center; }
+#pagination-controls button { margin: 0 3px; padding: 5px 10px; cursor: pointer; border-radius: 5px; border: 1px solid #3efa41; background-color: white; color: #3efa41; font-weight: bold; }
+#pagination-controls button.active { background-color: #3efa41; color: white; }
+.footer-note { margin-top: 30px; text-align: center; font-size: 14px; color: #a00; font-style: italic; border-top: 1px solid #ddd; padding-top: 15px; }
+.content-section { display: none; }
+.phone-input { width: 100px; padding: 3px; }
+.phone-ok, .phone-cancel { margin-left: 3px; padding: 3px 5px; }
+</style>
 
-        .navbar a {
-            float: left;
-            display: block;
-            color: white;
-            text-align: center;
-            padding: 14px 20px;
-            text-decoration: none;
-            font-weight: bold;
-        }
-
-        .navbar a:hover {
-            background-color: #35d836;
-        }
-
-        .navbar a.active {
-            background-color: #2eac30;
-        }
-
-        .home-content {
-            padding: 20px;
-            line-height: 1.6;
-        }
-
-        .service-list {
-            list-style-type: none;
-            padding: 0;
-        }
-
-        .service-list li {
-            background: #e6ffe6;
-            margin-bottom: 10px;
-            padding: 10px;
-            border-radius: 5px;
-            border-left: 5px solid #3efa41;
-        }
-
-        .map-box {
-            margin: 20px 0;
-            text-align: center;
-            border: 1px solid #ddd;
-            padding: 10px;
-            border-radius: 8px;
-        }
-
-        .map-box iframe {
-            width: 100%;
-            height: 300px;
-            border: none;
-            border-radius: 5px;
-        }
-
-        .contact-info {
-            text-align: center;
-            margin-top: 15px;
-            padding: 10px;
-            background-color: #fff8e1;
-            border-radius: 5px;
-            border: 1px dashed #ffd54f;
-        }
-
-        .search-form {
-            display: flex;
-            justify-content: center;
-            margin-bottom: 20px;
-        }
-
-        .search-form input {
-            padding: 10px;
-            margin: 0 10px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            width: 200px;
-        }
-
-        .search-form button {
-            padding: 10px 20px;
-            border: 1px solid #3efa41;
-            border-radius: 5px;
-            background-color: #3efa41;
-            color: white;
-            cursor: pointer;
-            font-weight: bold;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-        }
-
-        th, td {
-            padding: 12px;
-            text-align: center;
-            border: 1px solid #000;
-        }
-
-        th {
-            background-color: #3efa41;
-            color: white;
-        }
-
-        .content-section {
-            display: none;
-        }
-
-        .phone-input {
-            width: 120px;
-        }
-
-        .phone-ok, .phone-cancel {
-            margin-left: 3px;
-        }
-    </style>
-
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
 </head>
-
 <body>
 
 <div class="navbar">
@@ -160,41 +53,39 @@
 </div>
 
 <div class="container">
-
-    <!-- HOME (ASLI TIDAK DIUBAH) -->
     <div id="home-section" class="content-section" style="display:block;">
         <h1>Selamat Datang di ADDA Laundry 🧺</h1>
         <div class="home-content">
             <p>ADDA Laundry menyediakan layanan pencucian profesional...</p>
-
             <h3>Pilihan Layanan Kami:</h3>
             <ul class="service-list">
-                <li><strong>Layanan Biasa:</strong> 5 hari – Rp 7.000/KG</li>
-                <li><strong>Layanan Sedang:</strong> 3 hari – Rp 9.000/KG</li>
-                <li><strong>Layanan Cepat:</strong> 1 hari – Rp 10.000/KG</li>
+                <li><strong>Layanan Biasa:</strong> Durasi 5 hari, Harga Rp 7.000/KG.</li>
+                <li><strong>Layanan Sedang:</strong> Durasi 3 hari, Harga Rp 9.000/KG.</li>
+                <li><strong>Layanan Cepat:</strong> Durasi 1 hari, Harga Rp 10.000/KG.</li>
             </ul>
-
             <div class="map-box">
                 <h3>Lokasi Kami:</h3>
-                <iframe src="https://www.google.com/maps/embed?pb=!1m18..."></iframe>
+                <iframe src="https://www.google.com/maps/embed?..."></iframe>
+                <p><strong>Alamat:</strong> Jl. Cemp. Putih Timur XXIVA No.35, Jakarta Pusat</p>
             </div>
-
             <div class="contact-info">
                 <h3>Informasi & Bantuan:</h3>
-                <p>Kontak Admin: +62 813-8431-3155</p>
-                <p style="color:red;font-weight:bold;">WAJIB membawa struk transaksi</p>
+                <p>Hubungi admin: +62 813-8431-3155</p>
+                <p style="color:red; font-weight:bold;">PERINGATAN: Pengambilan barang wajib membawa struk transaksi.</p>
             </div>
         </div>
     </div>
 
-    <!-- DATA -->
     <div id="data-section" class="content-section">
         <h1>Data Riwayat Transaksi Pelanggan</h1>
-
         <div class="search-form">
-            <input type="text" id="search-name" placeholder="Masukkan Nama">
-            <input type="text" id="search-code" placeholder="Masukkan Kode Transaksi">
+            <input type="text" id="search-name" placeholder="Masukkan Nama" />
+            <input type="text" id="search-code" placeholder="Masukkan Kode Transaksi" />
             <button id="search-btn">Cari</button>
+        </div>
+
+        <div class="error-message" id="error-message" style="display:none;">
+            Gagal memuat data. Silakan cek konsol.
         </div>
 
         <table id="laundryTable">
@@ -202,19 +93,28 @@
                 <tr>
                     <th>No</th>
                     <th>Nama</th>
-                    <th>No Telepon</th>
-                    <th>Harga</th>
-                    <th>Jumlah</th>
-                    <th>Berat</th>
+                    <th>Nomor Telepon</th>
+                    <th>Harga (Rp)</th>
+                    <th>Jumlah (PCS)</th>
+                    <th>Berat (KG)</th>
                     <th>Layanan</th>
-                    <th>Tgl Masuk</th>
-                    <th>Tgl Selesai</th>
-                    <th>Kode</th>
+                    <th>Tanggal Masuk</th>
+                    <th>Tanggal Selesai</th>
+                    <th>Kode Transaksi</th>
                     <th>Status</th>
                 </tr>
             </thead>
             <tbody></tbody>
         </table>
+
+        <div id="pagination-controls"></div>
+        <div class="no-results" id="no-results-message" style="display:none;">
+            <p>Data tidak ditemukan untuk pencarian yang Anda masukkan.</p>
+        </div>
+
+        <div class="footer-note">
+            <p>Jika dalam 30 hari tidak diambil, maka segala bentuk kehilangan bukan tanggung jawab kami!</p>
+        </div>
     </div>
 </div>
 
@@ -226,93 +126,169 @@ const firebaseConfig = {
     projectId: "tongsampah1-a",
     storageBucket: "tongsampah1-a.appspot.com",
     messagingSenderId: "631897766480",
-    appId: "1:631897766480:web:b12b5adc1f1d48d20f2f55"
+    appId: "1:631897766480:web:b12b5adc1f1d48d20f2f55",
+    measurementId: "G-4S53LK3D6X"
 };
-
 firebase.initializeApp(firebaseConfig);
 const database = firebase.database();
 
 let allData = [];
+const pageSize = 10;
+let currentPage = 1;
 
-function renderTablePage(page = 1) {
+function formatRupiah(angka) {
+    const number = parseInt(angka);
+    if(isNaN(number)) return "Rp0,00";
+    return 'Rp '+ number.toLocaleString('id-ID', {minimumFractionDigits:2});
+}
+
+function showNoResultsMessage() {
+    $('#no-results-message').show();
+    $('#laundryTable').hide();
+    $('#pagination-controls').empty();
+}
+function hideNoResultsMessage() {
+    $('#no-results-message').hide();
+    $('#laundryTable').show();
+}
+
+function clearTable() {
+    allData = [];
+    $('#laundryTable tbody').empty();
+    $('#laundryTable tbody').append('<tr><td colspan="11">Masukkan Nama atau Kode Transaksi untuk memulai pencarian.</td></tr>');
+    $('#pagination-controls').empty();
+    hideNoResultsMessage();
+}
+
+function renderTablePage(page=1) {
     const tableBody = $('#laundryTable tbody');
     tableBody.empty();
-
     currentPage = page;
+    if(allData.length===0){tableBody.append('<tr><td colspan="11">Tidak ada data yang ditampilkan.</td></tr>'); $('#pagination-controls').empty(); return;}
 
-    if (allData.length === 0) {
-        tableBody.append('<tr><td colspan="11">Tidak ada data yang ditampilkan.</td></tr>');
-        $('#pagination-controls').empty();
-        return;
-    }
+    const start = (page-1)*pageSize;
+    const end = start+pageSize;
+    const pageData = allData.slice(start,end);
 
-    const start = (page - 1) * pageSize;
-    const end = start + pageSize;
-    const pageData = allData.slice(start, end);
-
-    pageData.forEach((item, index) => {
-        const nomorUrut = start + index + 1;
-        const row = `
-            <tr>
-                <td>${nomorUrut}</td>
-                <td>${item.nama || '-'}</td>
-                <td>
-                    <input class="phone-input" value="${item.telepon || ''}" data-code="${item.code}">
-                    <button class="phone-ok" style="display:none">OK</button>
-                    <button class="phone-cancel" data-old="${item.telepon || ''}" style="display:none">Cancel</button>
-                </td>
-                <td>${formatRupiah(item.harga)}</td>
-                <td>${item.jumlah || '0'}</td>
-                <td>${item.berat || '0'}</td>
-                <td>${item.layanan || '-'}</td>
-                <td>${item.tanggal || '-'}</td>
-                <td>${item.tanggalPengambilan || '-'}</td>
-                <td>${item.code || '-'}</td>
-                <td>${item.status || 'On Proses'}</td>
-            </tr>
-        `;
+    pageData.forEach((item,index)=>{
+        const nomorUrut = start+index+1;
+        const row = `<tr>
+            <td>${nomorUrut}</td>
+            <td>${item.nama||'-'}</td>
+            <td>
+                <input class="phone-input" value="${item.telepon||''}" data-code="${item.code}">
+                <button class="phone-ok" style="display:none">OK</button>
+                <button class="phone-cancel" data-old="${item.telepon||''}" style="display:none">Cancel</button>
+            </td>
+            <td>${formatRupiah(item.harga)}</td>
+            <td>${item.jumlah||'0'}</td>
+            <td>${item.berat||'0'}</td>
+            <td>${item.layanan||'-'}</td>
+            <td>${item.tanggal||'-'}</td>
+            <td>${item.tanggalPengambilan||'-'}</td>
+            <td>${item.code||'-'}</td>
+            <td>${item.status||'On Proses'}</td>
+        </tr>`;
         tableBody.append(row);
     });
-
     renderPagination();
+    attachPhoneEvents();
 }
-$('#search-btn').click(function() {
-    const name = $('#search-name').val().trim();
-    const code = $('#search-code').val().trim();
-    searchData(name, code);
-});
 
-$(document).on('input', '.phone-input', function(){
-    $(this).siblings('button').show();
-});
+function renderPagination() {
+    const totalPages = Math.ceil(allData.length/pageSize);
+    let html='';
+    if(totalPages<=1 || allData.length===0){$('#pagination-controls').empty(); return;}
+    html += `<button class="pagination-prev" data-page="${Math.max(1,currentPage-1)}" ${currentPage===1?'disabled':''}>« Prev</button>`;
+    for(let i=1;i<=totalPages;i++){
+        html += `<button class="pagination-btn ${i===currentPage?'active':''}" data-page="${i}">${i}</button>`;
+    }
+    html += `<button class="pagination-next" data-page="${Math.min(totalPages,currentPage+1)}" ${currentPage===totalPages?'disabled':''}>Next »</button>`;
+    $('#pagination-controls').html(html);
+    $('#pagination-controls button').off('click').on('click',function(){
+        const newPage = parseInt($(this).attr('data-page'));
+        if(!isNaN(newPage) && newPage!==currentPage){
+            renderTablePage(newPage);
+        }
+    });
+}
 
-$(document).on('click', '.phone-ok', function(){
-    const row = $(this).closest('td');
-    const input = row.find('.phone-input');
-    const code = input.data('code');
-
-    database.ref('databasee/' + code).update({
-        telepon: input.val()
+// --- EVENT UNTUK NOMOR TELEPON ---
+function attachPhoneEvents(){
+    $('.phone-input').off('input').on('input', function(){
+        $(this).siblings('.phone-ok, .phone-cancel').show();
     });
 
-    row.find('button').hide();
-});
+    $('.phone-cancel').off('click').on('click', function(){
+        const old = $(this).attr('data-old');
+        $(this).siblings('.phone-input').val(old);
+        $(this).siblings('.phone-ok, .phone-cancel').hide();
+    });
 
-$(document).on('click', '.phone-cancel', function(){
-    const row = $(this).closest('td');
-    const old = $(this).data('old');
-    row.find('.phone-input').val(old);
-    row.find('button').hide();
-});
+    $('.phone-ok').off('click').on('click', function(){
+        const input = $(this).siblings('.phone-input');
+        const newPhone = input.val().trim();
+        const code = input.attr('data-code');
+        if(code){
+            database.ref('databasee/'+code+'/telepon').set(newPhone)
+                .then(()=>{alert('Nomor tersimpan!');})
+                .catch(()=>{alert('Gagal menyimpan!');});
+        }
+        $(this).hide();
+        $(this).siblings('.phone-cancel').hide();
+    });
+}
 
-$('.nav-link').click(function(e){
-    e.preventDefault();
+// --- FUNGSI PENCARIAN UTAMA ---
+function searchData(name, code){
+    hideNoResultsMessage();
+    currentPage=1;
+    if(!code && !name){clearTable(); return;}
+    if(code){
+        database.ref('databasee').child(code).once('value',(snapshot)=>{
+            const data = snapshot.val();
+            if(data){allData=[data]; hideNoResultsMessage();}
+            else{allData=[]; showNoResultsMessage();}
+            renderTablePage(currentPage);
+        });
+    }else if(name){
+        database.ref('databasee').once('value',(snapshot)=>{
+            let filteredData=[];
+            snapshot.forEach((childSnapshot)=>{
+                const data = childSnapshot.val();
+                if(data.nama && data.nama.toLowerCase().includes(name.toLowerCase())){
+                    filteredData.push(data);
+                }
+            });
+            allData = filteredData;
+            if(allData.length===0){showNoResultsMessage();}
+            else{hideNoResultsMessage();}
+            renderTablePage(currentPage);
+        });
+    }
+}
+
+// --- NAVIGASI TAB ---
+function activateTab(targetId){
     $('.content-section').hide();
-    $('#' + $(this).data('target')).show();
+    $('#'+targetId).show();
     $('.nav-link').removeClass('active');
-    $(this).addClass('active');
+    $(`[data-target="${targetId}"]`).addClass('active');
+
+    if(targetId==='data-section'){
+        const name = $('#search-name').val().trim();
+        const code = $('#search-code').val().trim();
+        if(name || code){searchData(name,code);}
+        else{clearTable();}
+    }
+}
+
+// --- READY FUNCTION ---
+$(document).ready(function(){
+    activateTab('home-section');
+    $('.nav-link').click(function(e){ e.preventDefault(); const targetId=$(this).attr('data-target'); activateTab(targetId); });
+    $('#search-btn').click(function(){ const name=$('#search-name').val().trim(); const code=$('#search-code').val().trim(); searchData(name,code); });
 });
 </script>
-
 </body>
 </html>
