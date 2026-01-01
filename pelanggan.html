@@ -1,157 +1,295 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>ADDA LAUNDRY - Data Transaksi</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>ADDA LAUNDRY - Data Transaksi</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
 
-<style>
-body{font-family:Arial;margin:0;background:#f4f4f4}
-.container{width:90%;margin:50px auto;background:#fff;padding:20px;border-radius:8px}
-.navbar{background:#3efa41;overflow:hidden}
-.navbar a{float:left;color:#fff;padding:14px 20px;text-decoration:none;font-weight:bold}
-.navbar a.active{background:#2eac30}
+        .container {
+            width: 90%;
+            margin: 50px auto;
+            background-color: white;
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
 
-.content-section{display:none}
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+        }
 
-table{width:100%;border-collapse:collapse;margin-top:20px}
-th,td{border:1px solid #000;padding:10px;text-align:center}
-th{background:#3efa41;color:white}
+        .navbar {
+            background-color: #3efa41;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
 
-.phone-input{width:130px;padding:5px}
-.save-phone-btn{
-  padding:5px 10px;
-  margin-left:5px;
-  background:#3efa41;
-  border:none;
-  color:white;
-  cursor:pointer;
-  border-radius:4px;
-  display:none;
-}
-</style>
+        .navbar a {
+            float: left;
+            display: block;
+            color: white;
+            text-align: center;
+            padding: 14px 20px;
+            text-decoration: none;
+            font-weight: bold;
+        }
 
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+        .navbar a:hover {
+            background-color: #35d836;
+        }
+
+        .navbar a.active {
+            background-color: #2eac30;
+        }
+
+        .home-content {
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .service-list {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        .service-list li {
+            background: #e6ffe6;
+            margin-bottom: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            border-left: 5px solid #3efa41;
+        }
+
+        .map-box {
+            margin: 20px 0;
+            text-align: center;
+            border: 1px solid #ddd;
+            padding: 10px;
+            border-radius: 8px;
+        }
+
+        .map-box iframe {
+            width: 100%;
+            height: 300px;
+            border: none;
+            border-radius: 5px;
+        }
+
+        .contact-info {
+            text-align: center;
+            margin-top: 15px;
+            padding: 10px;
+            background-color: #fff8e1;
+            border-radius: 5px;
+            border: 1px dashed #ffd54f;
+        }
+
+        .search-form {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .search-form input {
+            padding: 10px;
+            margin: 0 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            width: 200px;
+        }
+
+        .search-form button {
+            padding: 10px 20px;
+            border: 1px solid #3efa41;
+            border-radius: 5px;
+            background-color: #3efa41;
+            color: white;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: center;
+            border: 1px solid #000;
+        }
+
+        th {
+            background-color: #3efa41;
+            color: white;
+        }
+
+        .content-section {
+            display: none;
+        }
+
+        .phone-input {
+            width: 120px;
+        }
+
+        .phone-ok, .phone-cancel {
+            margin-left: 3px;
+        }
+    </style>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
 </head>
 
 <body>
 
 <div class="navbar">
-  <a href="#" class="nav-link active" data-target="home-section">Home</a>
-  <a href="#" class="nav-link" data-target="data-section">Data Pelanggan</a>
+    <a href="#" class="nav-link active" data-target="home-section">Home</a>
+    <a href="#" class="nav-link" data-target="data-section">Data Pelanggan</a>
 </div>
 
 <div class="container">
 
-<!-- ================= HOME (ASLI – TIDAK DIUBAH) ================= -->
-<div id="home-section" class="content-section" style="display:block;">
-  <h1>Selamat Datang di ADDA Laundry 🧺</h1>
+    <!-- HOME (ASLI TIDAK DIUBAH) -->
+    <div id="home-section" class="content-section" style="display:block;">
+        <h1>Selamat Datang di ADDA Laundry 🧺</h1>
+        <div class="home-content">
+            <p>ADDA Laundry menyediakan layanan pencucian profesional...</p>
 
-  <p>
-    ADDA Laundry menyediakan layanan pencucian profesional untuk memenuhi kebutuhan pakaian bersih Anda.
-  </p>
+            <h3>Pilihan Layanan Kami:</h3>
+            <ul class="service-list">
+                <li><strong>Layanan Biasa:</strong> 5 hari – Rp 7.000/KG</li>
+                <li><strong>Layanan Sedang:</strong> 3 hari – Rp 9.000/KG</li>
+                <li><strong>Layanan Cepat:</strong> 1 hari – Rp 10.000/KG</li>
+            </ul>
 
-  <h3>Pilihan Layanan:</h3>
-  <ul>
-    <li>Layanan Biasa – 5 Hari – Rp7.000/KG</li>
-    <li>Layanan Sedang – 3 Hari – Rp9.000/KG</li>
-    <li>Layanan Cepat – 1 Hari – Rp10.000/KG</li>
-  </ul>
+            <div class="map-box">
+                <h3>Lokasi Kami:</h3>
+                <iframe src="https://www.google.com/maps/embed?pb=!1m18..."></iframe>
+            </div>
 
-  <p><b>Kontak Admin:</b> +62 813-8431-3155</p>
-  <p style="color:red;font-weight:bold">WAJIB membawa struk transaksi</p>
-</div>
+            <div class="contact-info">
+                <h3>Informasi & Bantuan:</h3>
+                <p>Kontak Admin: +62 813-8431-3155</p>
+                <p style="color:red;font-weight:bold;">WAJIB membawa struk transaksi</p>
+            </div>
+        </div>
+    </div>
 
-<!-- ================= DATA ================= -->
-<div id="data-section" class="content-section">
-<h1>Data Pelanggan</h1>
+    <!-- DATA -->
+    <div id="data-section" class="content-section">
+        <h1>Data Riwayat Transaksi Pelanggan</h1>
 
-<table id="laundryTable">
-<thead>
-<tr>
-<th>No</th>
-<th>Nama</th>
-<th>No Telepon</th>
-<th>Harga</th>
-<th>Berat</th>
-<th>Kode</th>
-</tr>
-</thead>
-<tbody></tbody>
-</table>
+        <div class="search-form">
+            <input type="text" id="search-name" placeholder="Masukkan Nama">
+            <input type="text" id="search-code" placeholder="Masukkan Kode Transaksi">
+            <button id="search-btn">Cari</button>
+        </div>
 
-</div>
+        <table id="laundryTable">
+            <thead>
+                <tr>
+                    <th>No</th>
+                    <th>Nama</th>
+                    <th>No Telepon</th>
+                    <th>Harga</th>
+                    <th>Jumlah</th>
+                    <th>Berat</th>
+                    <th>Layanan</th>
+                    <th>Tgl Masuk</th>
+                    <th>Tgl Selesai</th>
+                    <th>Kode</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
 </div>
 
 <script>
 const firebaseConfig = {
- apiKey: "AIzaSyA0nLjuJd1cah3yHkcWLNvmqPA5cAnSOjI",
- databaseURL: "https://tongsampah1-a-default-rtdb.firebaseio.com"
+    apiKey: "AIzaSyA0nLjuJd1cah3yHkcWLNvmqPA5cAnSOjI",
+    authDomain: "tongsampah1-a.firebaseapp.com",
+    databaseURL: "https://tongsampah1-a-default-rtdb.firebaseio.com",
+    projectId: "tongsampah1-a",
+    storageBucket: "tongsampah1-a.appspot.com",
+    messagingSenderId: "631897766480",
+    appId: "1:631897766480:web:b12b5adc1f1d48d20f2f55"
 };
+
 firebase.initializeApp(firebaseConfig);
-const db = firebase.database();
+const database = firebase.database();
 
 let allData = [];
 
-function loadData(){
- db.ref("databasee").once("value", snap=>{
-  allData=[];
-  snap.forEach(c=>{
-    let d=c.val();
-    d.key=c.key;
-    allData.push(d);
-  });
-  renderTable();
- });
+function renderTable() {
+    const tbody = $('#laundryTable tbody');
+    tbody.empty();
+
+    allData.forEach((item, i) => {
+        tbody.append(`
+        <tr>
+            <td>${i+1}</td>
+            <td>${item.nama || '-'}</td>
+            <td>
+                <input class="phone-input" value="${item.telepon || ''}" data-code="${item.code}">
+                <button class="phone-ok" style="display:none">OK</button>
+                <button class="phone-cancel" data-old="${item.telepon || ''}" style="display:none">Cancel</button>
+            </td>
+            <td>${item.harga || 0}</td>
+            <td>${item.jumlah || 0}</td>
+            <td>${item.berat || 0}</td>
+            <td>${item.layanan || '-'}</td>
+            <td>${item.tanggal || '-'}</td>
+            <td>${item.tanggalPengambilan || '-'}</td>
+            <td>${item.code || '-'}</td>
+            <td>${item.status || '-'}</td>
+        </tr>
+        `);
+    });
 }
 
-function renderTable(){
- const tb=$("#laundryTable tbody");
- tb.empty();
- allData.forEach((d,i)=>{
- tb.append(`
- <tr>
-  <td>${i+1}</td>
-  <td>${d.nama||'-'}</td>
-  <td>
-    <input class="phone-input" data-key="${d.key}" value="${d.telepon||''}">
-    <button class="save-phone-btn" data-key="${d.key}">OK</button>
-  </td>
-  <td>${d.harga||0}</td>
-  <td>${d.berat||0}</td>
-  <td>${d.code||d.key}</td>
- </tr>
- `);
- });
-}
-
-/* tampilkan tombol OK saat diketik */
-$(document).on("input",".phone-input",function(){
- $(this).siblings(".save-phone-btn").show();
+$(document).on('input', '.phone-input', function(){
+    $(this).siblings('button').show();
 });
 
-/* simpan saat klik OK */
-$(document).on("click",".save-phone-btn",function(){
- const key=$(this).data("key");
- const phone=$(this).siblings(".phone-input").val();
- db.ref("databasee/"+key).update({telepon:phone});
- $(this).hide();
- alert("Nomor telepon disimpan");
+$(document).on('click', '.phone-ok', function(){
+    const row = $(this).closest('td');
+    const input = row.find('.phone-input');
+    const code = input.data('code');
+
+    database.ref('databasee/' + code).update({
+        telepon: input.val()
+    });
+
+    row.find('button').hide();
 });
 
-/* NAVIGASI */
-$(".nav-link").click(function(e){
- e.preventDefault();
- $(".content-section").hide();
- $("#"+$(this).data("target")).show();
- $(".nav-link").removeClass("active");
- $(this).addClass("active");
+$(document).on('click', '.phone-cancel', function(){
+    const row = $(this).closest('td');
+    const old = $(this).data('old');
+    row.find('.phone-input').val(old);
+    row.find('button').hide();
+});
 
- if($(this).data("target")==="data-section"){
-   loadData();
- }
+$('.nav-link').click(function(e){
+    e.preventDefault();
+    $('.content-section').hide();
+    $('#' + $(this).data('target')).show();
+    $('.nav-link').removeClass('active');
+    $(this).addClass('active');
 });
 </script>
 
