@@ -234,31 +234,47 @@ const database = firebase.database();
 
 let allData = [];
 
-function renderTable() {
-    const tbody = $('#laundryTable tbody');
-    tbody.empty();
+function renderTablePage(page = 1) {
+    const tableBody = $('#laundryTable tbody');
+    tableBody.empty();
 
-    allData.forEach((item, i) => {
-        tbody.append(`
-        <tr>
-            <td>${i+1}</td>
-            <td>${item.nama || '-'}</td>
-            <td>
-                <input class="phone-input" value="${item.telepon || ''}" data-code="${item.code}">
-                <button class="phone-ok" style="display:none">OK</button>
-                <button class="phone-cancel" data-old="${item.telepon || ''}" style="display:none">Cancel</button>
-            </td>
-            <td>${item.harga || 0}</td>
-            <td>${item.jumlah || 0}</td>
-            <td>${item.berat || 0}</td>
-            <td>${item.layanan || '-'}</td>
-            <td>${item.tanggal || '-'}</td>
-            <td>${item.tanggalPengambilan || '-'}</td>
-            <td>${item.code || '-'}</td>
-            <td>${item.status || '-'}</td>
-        </tr>
-        `);
+    currentPage = page;
+
+    if (allData.length === 0) {
+        tableBody.append('<tr><td colspan="11">Tidak ada data yang ditampilkan.</td></tr>');
+        $('#pagination-controls').empty();
+        return;
+    }
+
+    const start = (page - 1) * pageSize;
+    const end = start + pageSize;
+    const pageData = allData.slice(start, end);
+
+    pageData.forEach((item, index) => {
+        const nomorUrut = start + index + 1;
+        const row = `
+            <tr>
+                <td>${nomorUrut}</td>
+                <td>${item.nama || '-'}</td>
+                <td>
+                    <input class="phone-input" value="${item.telepon || ''}" data-code="${item.code}">
+                    <button class="phone-ok" style="display:none">OK</button>
+                    <button class="phone-cancel" data-old="${item.telepon || ''}" style="display:none">Cancel</button>
+                </td>
+                <td>${formatRupiah(item.harga)}</td>
+                <td>${item.jumlah || '0'}</td>
+                <td>${item.berat || '0'}</td>
+                <td>${item.layanan || '-'}</td>
+                <td>${item.tanggal || '-'}</td>
+                <td>${item.tanggalPengambilan || '-'}</td>
+                <td>${item.code || '-'}</td>
+                <td>${item.status || 'On Proses'}</td>
+            </tr>
+        `;
+        tableBody.append(row);
     });
+
+    renderPagination();
 }
 
 $(document).on('input', '.phone-input', function(){
