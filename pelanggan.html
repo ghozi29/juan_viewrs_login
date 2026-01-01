@@ -285,14 +285,7 @@ function activateTab(targetId){
         else{clearTable();}
     }
 }
-// Tombol logout
-$('#logout-btn').click(function(e){
-    e.preventDefault();
-    // Contoh aksi logout: reload halaman (atau arahkan ke login.html)
-    if(confirm("Apakah Anda yakin ingin logout?")) {
-        location.reload(); // ganti dengan lokasi login jika ada, misal 'login.html'
-    }
-});
+
 
 // --- READY FUNCTION ---
 $(document).ready(function(){
