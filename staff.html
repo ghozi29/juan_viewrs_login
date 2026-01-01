@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Data Pelanggan Laundry (Staff)</title>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      margin: 0;
+    }
+
+    /* ===== NAVBAR ===== */
+    .navbar {
+      background-color: #3efa41;
+      overflow: hidden;
+    }
+
+    .navbar a {
+      float: left;
+      color: black;
+      padding: 14px 20px;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    .navbar a:hover {
+      background-color: #35d836;
+    }
+
+    #logout-btn {
+      float: right;
+      background-color: #e53935;
+      color: white;
+    }
+
+    #logout-btn:hover {
+      background-color: #c62828;
+    }
+
+    /* ===== CONTENT ===== */
+    .container {
+      width: 95%;
+      max-width: 1200px;
+      margin: 30px auto;
+      background-color: white;
+      padding: 20px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      border-radius: 8px;
+      overflow-x: auto;
+    }
+
+    h1 {
+      text-align: center;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 15px;
+      min-width: 900px;
+    }
+
+    th, td {
+      padding: 8px;
+      border: 1px solid #ccc;
+      text-align: center;
+      font-size: 13px;
+    }
+
+    th {
+      background-color: #3efa41;
+    }
+
+    .delete-button {
+      background-color: red;
+      color: white;
+      border: none;
+      padding: 4px 8px;
+      cursor: pointer;
+      border-radius: 5px;
+      font-size: 12px;
+    }
+
+    .status-dropdown,
+    .phone-input {
+      padding: 4px;
+      border-radius: 5px;
+      font-size: 12px;
+      width: 130px;
+    }
+
+    #pagination-controls {
+      text-align: center;
+      margin-top: 15px;
+    }
+
+    #pagination-controls button {
+      padding: 4px 8px;
+      margin: 2px;
+      border-radius: 5px;
+      border: 1px solid #3efa41;
+      background-color: white;
+      color: #3efa41;
+      font-weight: bold;
+      cursor: pointer;
+      font-size: 12px;
+    }
+
+    #pagination-controls button.active {
+      background-color: #3efa41;
+      color: white;
+    }
+  </style>
+
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+
+<body>
+
+<!-- ===== NAVBAR ===== -->
+<div class="navbar">
+  <a href="#">STAFF LAUNDRY</a>
+  <a href="#" id="logout-btn">Logout</a>
+</div>
+
+<!-- ===== MAIN ===== -->
+<div class="container">
+  <h1>Data Pelanggan Laundry</h1>
+
+  <table id="laundryTable">
+    <thead>
+      <tr>
+        <th>No</th>
+        <th>Nama</th>
+        <th>No Telepon</th>
+        <th>Harga</th>
+        <th>Jumlah</th>
+        <th>Berat</th>
+        <th>Layanan</th>
+        <th>Tgl Masuk</th>
+        <th>Tgl Selesai</th>
+        <th>Kode</th>
+        <th>Status</th>
+        <th>Aksi</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <div id="pagination-controls"></div>
+</div>
+
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyA0nLjuJd1cah3yHkcWLNvmqPA5cAnSOjI",
+    authDomain: "tongsampah1-a.firebaseapp.com",
+    databaseURL: "https://tongsampah1-a-default-rtdb.firebaseio.com",
+    projectId: "tongsampah1-a",
+    storageBucket: "tongsampah1-a.appspot.com",
+    messagingSenderId: "631897766480",
+    appId: "1:631897766480:web:b12b5adc1f1d48d20f2f55"
+  };
+
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.database();
+  const dataRef = db.ref("databasee");
+
+  let allData = [];
+  let currentPage = 1;
+  const pageSize = 10;
+
+  function formatRupiah(x) {
+    return parseInt(x || 0).toLocaleString('id-ID');
+  }
+
+  function renderTable(page = 1) {
+    const tbody = $('#laundryTable tbody');
+    tbody.empty();
+
+    const start = (page - 1) * pageSize;
+    const dataPage = allData.slice(start, start + pageSize);
+
+    if (dataPage.length === 0) {
+      tbody.append('<tr><td colspan="12">Tidak ada data</td></tr>');
+      return;
+    }
+
+    dataPage.forEach((item, i) => {
+      tbody.append(`
+        <tr>
+          <td>${start + i + 1}</td>
+          <td>${item.nama || '-'}</td>
+          <td>
+            <input type="text"
+              class="phone-input"
+              data-id="${item.key}"
+              value="${item.telepon || ''}"
+              placeholder="08xxxxxxxxxx">
+          </td>
+          <td>Rp ${formatRupiah(item.harga)}</td>
+          <td>${item.jumlah || 0}</td>
+          <td>${item.berat || 0}</td>
+          <td>${item.layanan || '-'}</td>
+          <td>${item.tanggal || '-'}</td>
+          <td>${item.tanggalPengambilan || '-'}</td>
+          <td>${item.code || '-'}</td>
+          <td>
+            <select class="status-dropdown" data-id="${item.key}">
+              <option value="On Proses" ${item.status === 'On Proses' ? 'selected' : ''}>On Proses</option>
+              <option value="Siap Diambil" ${item.status === 'Siap Diambil' ? 'selected' : ''}>Siap Diambil</option>
+              <option value="Sudah Diambil" ${item.status === 'Sudah Diambil' ? 'selected' : ''}>Sudah Diambil</option>
+            </select>
+          </td>
+          <td>
+            <button class="delete-button" data-id="${item.key}">Hapus</button>
+          </td>
+        </tr>
+      `);
+    });
+
+    renderPagination();
+  }
+
+  function renderPagination() {
+    let html = '';
+    const totalPages = Math.ceil(allData.length / pageSize);
+
+    for (let i = 1; i <= totalPages; i++) {
+      html += `<button class="${i === currentPage ? 'active' : ''}" data-page="${i}">${i}</button>`;
+    }
+    $('#pagination-controls').html(html);
+  }
+
+  function loadData() {
+    dataRef.once('value', snapshot => {
+      allData = [];
+      snapshot.forEach(child => {
+        const d = child.val();
+        d.key = child.key;
+        allData.unshift(d);
+      });
+      renderTable(currentPage = 1);
+    });
+  }
+
+  $(document).ready(loadData);
+
+  // Pagination
+  $(document).on('click', '#pagination-controls button', function () {
+    currentPage = parseInt($(this).data('page'));
+    renderTable(currentPage);
+  });
+
+  // Update Status
+  $(document).on('change', '.status-dropdown', function () {
+    const key = $(this).data('id');
+    dataRef.child(key).update({ status: $(this).val() });
+  });
+
+  // Update Phone
+  $(document).on('change', '.phone-input', function () {
+    const key = $(this).data('id');
+    dataRef.child(key).update({ telepon: $(this).val() });
+  });
+
+  // Delete
+  $(document).on('click', '.delete-button', function () {
+    const key = $(this).data('id');
+    if (confirm("Yakin hapus data ini?")) {
+      dataRef.child(key).remove().then(loadData);
+    }
+  });
+
+  // Logout
+  $('#logout-btn').click(function (e) {
+    e.preventDefault();
+    if (confirm("Logout dari akun staff?")) {
+      window.location.href = "login.html";
+    }
+  });
+</script>
+
+</body>
+</html>
