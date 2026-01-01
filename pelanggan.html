@@ -50,7 +50,9 @@ th { background-color: #3efa41; color: white; }
 <div class="navbar">
     <a href="#" class="nav-link active" data-target="home-section">Home</a>
     <a href="#" class="nav-link" data-target="data-section">Data Pelanggan</a>
+    <a href="#" id="logout-btn" style="float:right; background-color:#e53935;">Logout</a>
 </div>
+
 
 <div class="container">
     <div id="home-section" class="content-section" style="display:block;">
@@ -282,6 +284,14 @@ function activateTab(targetId){
         else{clearTable();}
     }
 }
+// Tombol logout
+$('#logout-btn').click(function(e){
+    e.preventDefault();
+    // Contoh aksi logout: reload halaman (atau arahkan ke login.html)
+    if(confirm("Apakah Anda yakin ingin logout?")) {
+        location.reload(); // ganti dengan lokasi login jika ada, misal 'login.html'
+    }
+});
 
 // --- READY FUNCTION ---
 $(document).ready(function(){
