@@ -276,6 +276,11 @@ function renderTablePage(page = 1) {
 
     renderPagination();
 }
+$('#search-btn').click(function() {
+    const name = $('#search-name').val().trim();
+    const code = $('#search-code').val().trim();
+    searchData(name, code);
+});
 
 $(document).on('input', '.phone-input', function(){
     $(this).siblings('button').show();
