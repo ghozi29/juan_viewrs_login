@@ -236,7 +236,7 @@
     $('#pagination-controls').html(html);
   }
 
-  function loadData() {
+ function loadData() {
   dataRef.once('value', snapshot => {
     allData = [];
     snapshot.forEach(child => {
@@ -245,12 +245,16 @@
       allData.push(d);
     });
 
-    // Urutkan dari terbaru ke terlama berdasarkan createdAt, default 0 kalau undefined
-    allData.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+    allData.sort((a, b) => {
+      const dateA = Date.parse(a.createdAT || '') || 0;
+      const dateB = Date.parse(b.createdAT || '') || 0;
+      return dateB - dateA;
+    });
 
     renderTable(currentPage = 1);
   });
 }
+
 
 
   $(document).ready(loadData);
